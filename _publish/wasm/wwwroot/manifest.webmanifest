@@ -1,0 +1,32 @@
+{
+  "background_color": "#ffffff",
+  "description": "Patina",
+  "display": "standalone",
+  "name": "Patina",
+  "short_name": "Patina",
+  "start_url": "/index.html",
+  "theme_color": "#ffffff",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "package_db9745488d6b9cc2dbd219826432fc856af1520f/icon-16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "package_db9745488d6b9cc2dbd219826432fc856af1520f/icon-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "package_db9745488d6b9cc2dbd219826432fc856af1520f/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "package_db9745488d6b9cc2dbd219826432fc856af1520f/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
