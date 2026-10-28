@@ -1,0 +1,22 @@
+@inject Text T
+
+@* A treatment line as the artwork page lists it: title, priority · status · date, chevron. *@
+<a class="list-row compact" href="treatment/@Treatment.Id">
+    <div class="stack" style="gap:2px">
+        <span class="t-title-sm">@Treatment.Title</span>
+        <div class="row row-sm t-label-plain">
+            <span>@T.Enum(Treatment.Priority)</span>
+            <span aria-hidden="true">·</span>
+            <span class="t-muted">@T.Enum(Treatment.Status)</span>
+            @if (Treatment.ScheduledFor is { } date)
+            {
+                <span class="t-muted">@T.Date(date)</span>
+            }
+        </div>
+    </div>
+    <span class="t-muted" aria-hidden="true">›</span>
+</a>
+
+@code {
+    [Parameter, EditorRequired] public TreatmentSummary Treatment { get; set; } = default!;
+}

@@ -1,0 +1,139 @@
+@page "/artwork/{Id}"
+@layout DetailLayout
+@inherits StoreComponent
+@inject NavigationManager Nav
+@inject IPhotoStore Photos
+
+<PageTitle>@(_dossier?.Artwork.Title ?? T["ApplicationName"])</PageTitle>
+
+@*
+    One artwork's record: the label, its condition, open work and survey history. The photograph is the anchor,
+    full-bleed; at Wide the dossier splits hero/label (left) and open work/history (right).
+*@
+<header class="page-bar">
+    <button type="button" class="btn btn-text btn-icon" aria-label="@T["Common_Back"]" @onclick="@(() => Nav.NavigateTo(""))">←</button>
+    <h1>@(_dossier?.Artwork.Title ?? "")</h1>
+</header>
+
+<StateView Loading="Loading" Error="@Error" ErrorTitle="@T["Artwork_ErrorTitle"]" OnRetry="RetryAsync" Empty="Document is not null && _dossier is null">
+    <None>
+        <h2 class="t-title">@T["Artwork_GoneTitle"]</h2>
+        <p class="t-body t-muted">@T["Artwork_GoneBody"]</p>
+        <a class="btn btn-outlined" href="">@T["Nav_Collection"]</a>
+    </None>
+    <ChildContent>
+        @{ var d = _dossier!; }
+        <div class="dossier entrance">
+            <div class="anchor">
+                <div class="hero">
+                    @if (d.Cover is { } cover)
+                    {
+                        <img src="@Photos.Url(cover)" alt="@T["Artwork_CoverPhoto_Name"]" />
+                    }
+                    else
+                    {
+                        <div class="empty stack stack-sm">
+                            <span aria-hidden="true" style="font-size:28px">◉</span>
+                            <span class="t-title-sm">@T["Artwork_NoPhotoTitle"]</span>
+                            <span class="t-body t-muted">@T["Artwork_NoPhotoBody"]</span>
+                        </div>
+                    }
+                </div>
+                <div class="page stack stack-xl" style="padding-top:var(--space-xl)">
+                    <TombstoneLabel Accession="@d.Artwork.Accession" Title="@d.Artwork.Title" Byline="@T.Byline(d.Artwork)" Place="@T.Place(d.Artwork)" />
+                    <div class="stack stack-sm">
+                        <span class="eyebrow">@T["Artwork_ConditionHeading"]</span>
+                        <ConditionStrip Grade="d.Summary.Grade" Large="true" />
+                        <span class="t-title-sm">@T.Due(d.Summary)</span>
+                        <span class="t-body t-muted">@T["Artwork_LastSurveyed"] @T.Date(d.Summary.LastSurveyed). @T.Interval(d)</span>
+                    </div>
+                    <a class="btn btn-filled start-survey" href="survey/@d.Artwork.Id">@T.SurveyAction(d)</a>
+                    <p class="t-body-lg">@d.Artwork.Description</p>
+                </div>
+            </div>
+
+            <div class="support page stack stack-2xl">
+                <section class="stack stack-xs">
+                    <h2 class="section-title">@T["Artwork_OpenTreatments"]</h2>
+                    @if (d.OpenTreatments.Count == 0)
+                    {
+                        <p class="t-body t-muted">@T["Artwork_NoOpenTreatments"]</p>
+                    }
+                    else
+                    {
+                        <ul class="list">
+                            @foreach (var t in d.OpenTreatments)
+                            {
+                                <li @key="t.Id"><TreatmentRow Treatment="t" /></li>
+                            }
+                        </ul>
+                    }
+                </section>
+
+                <section class="stack stack-xs">
+                    <h2 class="section-title">@T["Artwork_History"]</h2>
+                    @if (d.Surveys.Count == 0)
+                    {
+                        <p class="t-body t-muted">@T["Artwork_NoHistory"]</p>
+                    }
+                    else
+                    {
+                        <ul class="stack">
+                            @foreach (var s in d.Surveys)
+                            {
+                                <li @key="s.Id" class="stack stack-sm" style="padding:12px 0">
+                                    <hr class="divider" />
+                                    <div class="row row-md" style="align-items:flex-start">
+                                        <div class="grow stack" style="gap:2px">
+                                            <span class="t-title-sm">@T.Date(s.Date)</span>
+                                            <span class="t-body t-muted">@T.SurveyMeta(s)</span>
+                                        </div>
+                                        <ConditionStrip Grade="s.Grade" />
+                                    </div>
+                                    @if (!string.IsNullOrWhiteSpace(s.Notes))
+                                    {
+                                        <p class="t-body">@s.Notes</p>
+                                    }
+                                    @foreach (var f in s.Findings)
+                                    {
+                                        <span class="t-small t-muted">@T.Finding(f)</span>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    }
+                </section>
+
+                @if (d.CompletedTreatments.Count > 0)
+                {
+                    <section class="stack stack-xs">
+                        <h2 class="section-title">@T["Artwork_CompletedTreatments"]</h2>
+                        <ul class="list">
+                            @foreach (var t in d.CompletedTreatments)
+                            {
+                                <li @key="t.Id"><TreatmentRow Treatment="t" /></li>
+                            }
+                        </ul>
+                    </section>
+                }
+            </div>
+        </div>
+    </ChildContent>
+</StateView>
+
+@code {
+    [Parameter] public string Id { get; set; } = "";
+
+    private ArtworkDossier? _dossier;
+
+    /// <summary>None when the artwork no longer exists (for example after an import replaced the collection).</summary>
+    protected override void OnDocument(PatinaDocument doc) => _dossier = PatinaQueries.Dossier(doc, Id, Today);
+
+    protected override void OnParametersSet()
+    {
+        if (Document is not null)
+        {
+            OnDocument(Document);
+        }
+    }
+}

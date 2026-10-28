@@ -1,0 +1,91 @@
+@using Patina.Core.Model
+@inject IPhotoStore Photos
+@inject IPhotoCapture Capture
+@inject Text T
+
+@*
+    Thumbnails plus the two ways to add one. "Add photo" is an InputFile on every host: a file input opens the
+    native picker inside a BlazorWebView too. "Take photo" calls the host camera where one exists (MAUI), and
+    falls back to an InputFile with capture="environment", which phone browsers answer with the camera.
+*@
+<div class="stack-sm stack">
+    @if (!string.IsNullOrEmpty(Label))
+    {
+        <span class="field-label">@Label</span>
+    }
+    @if (Items.Count > 0)
+    {
+        <div class="photo-strip">
+            @foreach (var photo in Items)
+            {
+                <div class="photo @(Small ? "sm" : null)">
+                    <img src="@Photos.Url(photo)" alt="@photo.OriginalName" loading="lazy" />
+                    <button type="button" class="remove" aria-label="@T["Survey_RemovePhoto_Name"]" @onclick="() => OnRemove.InvokeAsync(photo)">×</button>
+                </div>
+            }
+        </div>
+    }
+    <div class="row row-sm wrap">
+        <label class="btn @ButtonClass">
+            <span aria-hidden="true">⊕</span> @T["Survey_AddPhoto"]
+            <InputFile class="visually-hidden" accept="image/*" OnChange="OnPicked" />
+        </label>
+        @if (Capture.CanCapture)
+        {
+            <button type="button" class="btn @ButtonClass" @onclick="CaptureAsync">
+                <span aria-hidden="true">◉</span> @T["Survey_TakePhoto"]
+            </button>
+        }
+        else
+        {
+            <label class="btn @ButtonClass">
+                <span aria-hidden="true">◉</span> @T["Survey_TakePhoto"]
+                <InputFile class="visually-hidden" accept="image/*" capture="environment" OnChange="OnPicked" />
+            </label>
+        }
+    </div>
+</div>
+
+@code {
+    private const long MaxBytes = 25 * 1024 * 1024;
+
+    [Parameter] public IReadOnlyList<PhotoRef> Items { get; set; } = [];
+    [Parameter] public string? Label { get; set; }
+    [Parameter] public bool Small { get; set; }
+    [Parameter] public bool Outlined { get; set; } = true;
+    [Parameter] public EventCallback<PhotoRef> OnAdded { get; set; }
+    [Parameter] public EventCallback<PhotoRef> OnRemove { get; set; }
+    [Parameter] public EventCallback<string> OnFailed { get; set; }
+
+    private string ButtonClass => Outlined ? "btn-outlined" : "btn-text";
+
+    private async Task OnPicked(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            await using var stream = e.File.OpenReadStream(MaxBytes);
+            var photo = await Photos.SaveAsync(stream, e.File.Name, CancellationToken.None);
+            await OnAdded.InvokeAsync(photo);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            await OnFailed.InvokeAsync(T["Survey_PhotoFailed"]);
+        }
+    }
+
+    private async Task CaptureAsync()
+    {
+        try
+        {
+            var photo = await Capture.CaptureAsync(CancellationToken.None);
+            if (photo is not null)
+            {
+                await OnAdded.InvokeAsync(photo);
+            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            await OnFailed.InvokeAsync(T["Survey_PhotoFailed"]);
+        }
+    }
+}

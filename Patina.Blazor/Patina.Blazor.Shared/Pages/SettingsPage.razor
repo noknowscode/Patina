@@ -1,0 +1,191 @@
+@page "/settings"
+@using System.Reflection
+@inject IAppSettings Settings
+@inject PatinaStore Store
+@inject TransferService Transfer
+@inject IFileSaver Saver
+@inject IPhotoStore Photos
+@inject NavigationManager Nav
+@inject Text T
+
+<PageTitle>@T["Nav_Settings"]</PageTitle>
+
+@* Surveyor name, appearance, language, and moving the collection between devices. *@
+<ConfirmDialog @ref="_confirm" Destructive="true" />
+<ThemeApplier @ref="_theme" />
+
+<div class="page stack stack-2xl entrance">
+    <section class="stack stack-xs">
+        <span class="eyebrow">@T["Settings_Eyebrow"]</span>
+        <h1 class="t-h1">@T["Settings_SurveyorHeading"]</h1>
+        <p class="t-body t-muted">@T["Settings_SurveyorBody"]</p>
+        <div class="field" style="margin-top:8px">
+            <label for="surveyor">@T["Settings_Surveyor_Header"]</label>
+            <input id="surveyor" class="input" value="@Settings.Surveyor" @onchange="e => Settings.Surveyor = e.Value?.ToString() ?? string.Empty" />
+        </div>
+    </section>
+
+    <section class="stack stack-md">
+        <h2 class="section-title">@T["Settings_AppearanceHeading"]</h2>
+        <fieldset class="field" style="border:0;padding:0;margin:0">
+            <legend class="field-label">@T["Settings_Theme_Header"]</legend>
+            <div class="segmented">
+                @foreach (var theme in Enum.GetValues<AppTheme>())
+                {
+                    <button type="button" aria-pressed="@(theme == Settings.Theme ? "true" : "false")" @onclick="() => SetThemeAsync(theme)">@T[$"Settings_Theme{theme}"]</button>
+                }
+            </div>
+        </fieldset>
+        <div class="row row-lg">
+            <div class="grow stack" style="gap:2px">
+                <label class="t-body-lg" for="reduce-motion">@T["Settings_ReduceMotionLabel"]</label>
+                <span class="t-body t-muted">@T["Settings_ReduceMotionBody"]</span>
+            </div>
+            <input id="reduce-motion" class="switch" type="checkbox" checked="@Settings.ReduceMotion" @onchange="e => SetReduceMotionAsync((bool)(e.Value ?? false))" />
+        </div>
+    </section>
+
+    <section class="stack stack-md">
+        <h2 class="section-title">@T["Settings_LanguageHeading"]</h2>
+        <div class="segmented" role="group" aria-label="@T["Settings_Language_Name"]" style="max-width:320px">
+            <button type="button" aria-pressed="@(Settings.Language == "en" ? "true" : "false")" @onclick='() => SetLanguage("en")'>English</button>
+            <button type="button" aria-pressed="@(Settings.Language == "fr" ? "true" : "false")" @onclick='() => SetLanguage("fr")'>Français</button>
+        </div>
+    </section>
+
+    <section class="stack stack-md">
+        <h2 class="section-title">@T["Settings_DataHeading"]</h2>
+        <p class="t-body t-muted">@T["Settings_DataBody"]</p>
+        <div class="actions">
+            <button type="button" class="btn btn-outlined" @onclick="ExportAsync">@T["Settings_Export"]</button>
+            <label class="btn btn-outlined">
+                @T["Settings_Import"]
+                <InputFile class="visually-hidden" accept=".patina,.zip" OnChange="ImportAsync" />
+            </label>
+            <button type="button" class="btn btn-text" @onclick="ResetAsync">@T["Settings_Reset"]</button>
+        </div>
+        <p class="t-body message" role="status" aria-live="polite">@_message</p>
+    </section>
+
+    <section class="stack stack-sm">
+        <h2 class="section-title">@T["Settings_AboutHeading"]</h2>
+        <div class="row row-sm">
+            <span class="t-title-sm">Patina</span>
+            <span class="t-mono">@Version</span>
+        </div>
+        <p class="t-body t-muted">@T["Settings_AboutSample"]</p>
+        <p class="t-body t-muted">@T["Settings_AboutCredits"]</p>
+        <div class="stack" style="gap:2px;margin-top:8px">
+            <span class="t-label-plain">@T["Settings_DataFolder"]</span>
+            <span class="t-mono" style="overflow-wrap:anywhere">@DataFolder</span>
+        </div>
+    </section>
+</div>
+
+@code {
+    private ConfirmDialog? _confirm;
+    private ThemeApplier? _theme;
+    private string _message = "";
+
+    private string Version { get; } =
+        typeof(SettingsPage).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+')[0] ?? "1.0.0";
+
+    private string DataFolder => Path.GetDirectoryName(Photos.Folder) ?? Photos.Folder;
+
+    private async Task SetThemeAsync(AppTheme theme)
+    {
+        Settings.Theme = theme;
+        if (_theme is not null)
+        {
+            await _theme.ApplyAsync();
+        }
+    }
+
+    private async Task SetReduceMotionAsync(bool value)
+    {
+        Settings.ReduceMotion = value;
+        if (_theme is not null)
+        {
+            await _theme.ApplyAsync();
+        }
+    }
+
+    private void SetLanguage(string culture)
+    {
+        if (Settings.Language == culture)
+        {
+            return;
+        }
+
+        Settings.Language = culture;
+        _message = T["Settings_LanguageRestart"];
+    }
+
+    private async Task ExportAsync()
+    {
+        try
+        {
+            var doc = await Store.GetAsync();
+            var bytes = await Transfer.ExportAsync(doc, CancellationToken.None);
+            var saved = await Saver.SaveAsync(Transfer.SuggestedFileName, "application/zip", bytes, CancellationToken.None);
+            _message = saved ? T["Settings_Exported"] : "";
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or PatinaStoreException)
+        {
+            _message = T["Settings_ExportFailed"];
+        }
+    }
+
+    private async Task ImportAsync(InputFileChangeEventArgs e)
+    {
+        byte[] bytes;
+        try
+        {
+            await using var stream = e.File.OpenReadStream(256 * 1024 * 1024);
+            using var memory = new MemoryStream();
+            await stream.CopyToAsync(memory);
+            bytes = memory.ToArray();
+        }
+        catch (IOException)
+        {
+            _message = T.Problem(Problem.ImportNotPatinaFile);
+            return;
+        }
+
+        var result = Transfer.Preview(bytes, e.File.Name);
+        if (!result.IsOk)
+        {
+            _message = T.Problem(result.Problem);
+            return;
+        }
+
+        var preview = result.Value!;
+        var confirmed = _confirm is not null && await _confirm.AskAsync(
+            T["Settings_ImportTitle"],
+            T.Format("Settings_ImportBody", preview.FileName, preview.Document.Artworks.Count, preview.Document.Surveys.Count),
+            T["Settings_ImportConfirm"]);
+        if (!confirmed)
+        {
+            return;
+        }
+
+        var problem = await Store.ReplaceAsync(preview.Document);
+        if (problem == Problem.None)
+        {
+            await Transfer.RestorePhotosAsync(preview, CancellationToken.None);
+        }
+
+        _message = problem == Problem.None ? T["Settings_Imported"] : T.Problem(problem);
+    }
+
+    private async Task ResetAsync()
+    {
+        if (_confirm is null || !await _confirm.AskAsync(T["Settings_ResetTitle"], T["Settings_ResetBody"], T["Settings_ResetConfirm"]))
+        {
+            return;
+        }
+
+        var problem = await Store.ResetToSampleAsync();
+        _message = problem == Problem.None ? T["Settings_ResetDone"] : T.Problem(problem);
+    }
+}

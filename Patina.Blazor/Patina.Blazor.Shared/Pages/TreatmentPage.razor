@@ -1,0 +1,172 @@
+@page "/treatment/{Id}"
+@layout DetailLayout
+@inherits StoreComponent
+@inject IAppSettings Settings
+@inject NavigationManager Nav
+
+<PageTitle>@T["Treatment_Title"]</PageTitle>
+
+@* One treatment: where it came from, its schedule and assignee, its log, and moving it forward. *@
+<header class="page-bar">
+    <button type="button" class="btn btn-text btn-icon" aria-label="@T["Common_Back"]" @onclick="Back">←</button>
+    <h1>@T["Treatment_Title"]</h1>
+</header>
+
+<StateView Loading="Loading" Error="@Error" ErrorTitle="@T["Treatment_ErrorTitle"]" OnRetry="RetryAsync" Empty="Document is not null && _detail is null">
+    <None>
+        <h2 class="t-title">@T["Treatment_GoneTitle"]</h2>
+        <p class="t-body t-muted">@T["Treatment_GoneBody"]</p>
+        <a class="btn btn-outlined" href="queue">@T["Nav_Queue"]</a>
+    </None>
+    <ChildContent>
+        @{ var d = _detail!; var t = d.Treatment; }
+        <div class="page stack stack-2xl entrance" style="padding-top:20px">
+            <div class="stack stack-xl">
+                <div class="stack stack-sm">
+                    <div class="row row-md">
+                        <span class="eyebrow">@T.Enum(t.Priority)</span>
+                        @if (d.Summary.IsLate)
+                        {
+                            <span class="t-label-plain t-error"><span aria-hidden="true">⚠ </span>@T["Queue_Late"]</span>
+                        }
+                    </div>
+                    <h1 class="t-h1">@t.Title</h1>
+                    <a class="row row-sm" href="artwork/@d.Artwork.Id" style="text-decoration:none;color:inherit">
+                        <span class="t-title-sm">@d.Artwork.Title</span>
+                        <span class="accession">@d.Artwork.Accession</span>
+                    </a>
+                </div>
+
+                @if (d.Survey is { } survey && d.Finding is { } finding)
+                {
+                    <div class="stack stack-sm">
+                        <span class="eyebrow">@T["Treatment_Origin"]</span>
+                        <span class="t-title-sm">@T.Date(survey.Date)</span>
+                        <span class="t-body-lg">@T.Finding(finding)</span>
+                        @if (!string.IsNullOrWhiteSpace(finding.Note))
+                        {
+                            <span class="t-body t-muted">@finding.Note</span>
+                        }
+                    </div>
+                }
+            </div>
+
+            <ol class="stepper" aria-label="@T["Treatment_Status_Name"]">
+                @foreach (var s in Enum.GetValues<TreatmentStatus>())
+                {
+                    var done = s < t.Status || t.Status == TreatmentStatus.Done;
+                    var current = s == t.Status && t.Status != TreatmentStatus.Done;
+                    <li class="step @(done ? "is-done" : current ? "is-current" : "is-upcoming")" aria-current="@(current ? "step" : null)">
+                        <span class="dot" aria-hidden="true">@(done ? "✓" : ((int)s + 1).ToString())</span>
+                        <span class="label">@T.Enum(s)</span>
+                    </li>
+                }
+            </ol>
+
+            @if (t.Status != TreatmentStatus.Done)
+            {
+                <div class="stack stack-md">
+                    <div class="field">
+                        <label for="scheduled">@T["Treatment_Date_Header"]</label>
+                        <input id="scheduled" class="input" type="date" @bind="_date" />
+                    </div>
+                    <div class="field">
+                        <label for="assignee">@T["Treatment_Assignee_Header"]</label>
+                        <input id="assignee" class="input" @bind="_assignee" @bind:event="oninput" />
+                    </div>
+                    <div class="field">
+                        <label for="note">@T["Treatment_Note_Header"]</label>
+                        <textarea id="note" class="textarea" style="min-height:88px" placeholder="@T["Treatment_Note_Placeholder"]" @bind="_note" @bind:event="oninput"></textarea>
+                    </div>
+                </div>
+            }
+
+            <div class="stack stack-md">
+                <p class="t-body message" role="status" aria-live="polite">@_message</p>
+                @if (t.Status != TreatmentStatus.Done)
+                {
+                    <div class="actions">
+                        <button type="button" class="btn btn-filled" @onclick="AdvanceAsync">@T.NextAction(t.Status)</button>
+                        <button type="button" class="btn btn-outlined" @onclick="SaveAsync">@T["Treatment_Save"]</button>
+                        @if (TreatmentWorkflow.Previous(t.Status) is not null)
+                        {
+                            <button type="button" class="btn btn-text" @onclick="StepBackAsync">@T["Treatment_StepBack"]</button>
+                        }
+                    </div>
+                }
+            </div>
+
+            <section class="stack stack-sm">
+                <h2 class="section-title">@T["Treatment_LogHeading"]</h2>
+                <ul class="stack">
+                    @foreach (var e in t.Log)
+                    {
+                        <li class="row row-lg" style="padding:6px 0;align-items:flex-start">
+                            <span class="t-mono t-muted" style="flex:none;width:96px">@T.Date(e.At)</span>
+                            <div class="grow stack" style="gap:2px">
+                                <span class="t-body">@T.Log(e)</span>
+                                <span class="t-small t-muted">@e.Author</span>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </section>
+        </div>
+    </ChildContent>
+</StateView>
+
+@code {
+    [Parameter] public string Id { get; set; } = "";
+
+    private TreatmentDetail? _detail;
+    private string? _loadedFor;
+    private DateOnly? _date;
+    private string _assignee = "";
+    private string _note = "";
+    private string _message = "";
+
+    private string Author => Settings.Surveyor is { Length: > 0 } name ? name : T["Common_UnnamedSurveyor"];
+
+    protected override void OnDocument(PatinaDocument doc)
+    {
+        _detail = PatinaQueries.Treatment(doc, Id, Today);
+        // The editable fields start from the stored treatment once per treatment; later commits (our own saves)
+        // must not overwrite what the user is typing.
+        if (_detail is { } d && _loadedFor != d.Treatment.Id)
+        {
+            _loadedFor = d.Treatment.Id;
+            _date = d.Treatment.ScheduledFor;
+            _assignee = d.Treatment.Assignee;
+        }
+    }
+
+    private async Task SaveAsync()
+    {
+        var problem = await Store.UpdateAsync(doc => TreatmentWorkflow.Save(doc, Id, _date, _assignee, _note, Author, Store.Clock.Now));
+        AfterWrite(problem, T["Treatment_Saved"]);
+    }
+
+    private async Task AdvanceAsync()
+    {
+        var problem = await Store.UpdateAsync(doc => TreatmentWorkflow.Advance(doc, Id, _date, _assignee, _note, Author, Store.Clock.Now));
+        AfterWrite(problem, "");
+    }
+
+    private async Task StepBackAsync()
+    {
+        var problem = await Store.UpdateAsync(doc => TreatmentWorkflow.StepBack(doc, Id, Author, Store.Clock.Now));
+        AfterWrite(problem, "");
+    }
+
+    private void AfterWrite(Problem problem, string success)
+    {
+        if (problem == Problem.None)
+        {
+            _note = "";
+        }
+
+        _message = problem == Problem.None ? success : T.Problem(problem);
+    }
+
+    private void Back() => Nav.NavigateTo("queue");
+}

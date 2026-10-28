@@ -1,0 +1,36 @@
+@page "/map"
+@layout DetailLayout
+@inherits StoreComponent
+@inject NavigationManager Nav
+
+<PageTitle>@T["Map_Title"]</PageTitle>
+
+@* The collection map on narrow windows, where it does not fit beside the list. *@
+<header class="page-bar">
+    <button type="button" class="btn btn-text btn-icon" aria-label="@T["Common_Back"]" @onclick="@(() => Nav.NavigateTo(""))">←</button>
+    <h1>@T["Map_Title"]</h1>
+</header>
+<div class="map-page">
+    <StateView Loading="Loading" Error="@Error" ErrorTitle="@T["Collection_ErrorTitle"]" OnRetry="RetryAsync">
+        <ArtworkMap Artworks="_items" SelectedId="_selectedId" SelectedIdChanged="Select" />
+        <MapCallout Artwork="_selected" OnClose="() => Select(null)" />
+    </StateView>
+</div>
+
+@code {
+    private IReadOnlyList<ArtworkSummary> _items = [];
+    private string? _selectedId;
+    private ArtworkSummary? _selected;
+
+    protected override void OnDocument(PatinaDocument doc)
+    {
+        _items = PatinaQueries.Collection(doc, Today, null, CollectionFilter.All).Items;
+        _selected = _items.FirstOrDefault(a => a.Id == _selectedId);
+    }
+
+    private void Select(string? id)
+    {
+        _selectedId = id;
+        _selected = _items.FirstOrDefault(a => a.Id == id);
+    }
+}

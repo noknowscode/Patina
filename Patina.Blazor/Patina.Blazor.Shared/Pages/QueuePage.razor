@@ -1,0 +1,98 @@
+@page "/queue"
+@inherits StoreComponent
+
+<PageTitle>@T["Nav_Queue"]</PageTitle>
+
+@* The treatment queue: late work first, then urgent, then by date. *@
+<div class="entrance">
+    <header class="page-head">
+        <div class="stack stack-xs">
+            <span class="eyebrow">@T["Queue_Eyebrow"]</span>
+            @if (_stats is { } s)
+            {
+                <div class="row row-md" style="align-items:baseline">
+                    <h1 class="t-display">@s.Urgent</h1>
+                    <span class="t-title">@T["Queue_Urgent"]</span>
+                </div>
+                <div class="row row-md wrap t-body t-muted">
+                    <span>@T.Count("Open", s.Open)</span>
+                    <span>@T.Count("InProgress", s.InProgress)</span>
+                    <span>@T.Count("ThisWeek", s.ScheduledThisWeek)</span>
+                </div>
+            }
+            else
+            {
+                <h1 class="t-display" style="color:var(--color-outline-variant)">@(Error is null ? "…" : "—")</h1>
+            }
+        </div>
+    </header>
+
+    <div class="chips" role="group" style="padding:8px 24px">
+        @foreach (var f in Enum.GetValues<QueueFilter>())
+        {
+            <button type="button" class="chip" aria-pressed="@(f == _filter ? "true" : "false")" @onclick="() => SetFilter(f)">@T.Enum(f)</button>
+        }
+    </div>
+
+    <StateView Loading="Loading" Error="@Error" ErrorTitle="@T["Queue_ErrorTitle"]" OnRetry="RetryAsync" Empty="_items is { Count: 0 }">
+        <None>
+            <h2 class="t-title">@T["Queue_EmptyTitle"]</h2>
+            <p class="t-body t-muted">@T["Queue_EmptyBody"]</p>
+            <button type="button" class="btn btn-outlined" @onclick="() => SetFilter(QueueFilter.Open)">@T["Queue_ShowOpen"]</button>
+        </None>
+        <ChildContent>
+            <ul class="list" aria-label="@T["Nav_Queue"]">
+                @foreach (var t in _items!)
+                {
+                    <li @key="t.Id">
+                        <a class="list-row" href="treatment/@t.Id">
+                            <div class="stack" style="gap:3px">
+                                <div class="row row-md t-label-plain">
+                                    <span>@T.Enum(t.Priority)</span>
+                                    @if (t.IsLate)
+                                    {
+                                        <span class="t-error"><span aria-hidden="true">⚠ </span>@T["Queue_Late"]</span>
+                                    }
+                                </div>
+                                <span class="t-title" style="font-size:16px">@t.Title</span>
+                                <span class="t-body t-muted">@t.ArtworkTitle · <span class="accession">@t.Accession</span></span>
+                            </div>
+                            <div class="end">
+                                <span class="t-label-plain">@T.Enum(t.Status)</span>
+                                @if (t.ScheduledFor is { } date)
+                                {
+                                    <span class="t-mono t-muted">@T.Date(date)</span>
+                                }
+                            </div>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </ChildContent>
+    </StateView>
+</div>
+
+@code {
+    private QueueFilter _filter = QueueFilter.Open;
+    private IReadOnlyList<TreatmentSummary>? _items;
+    private QueueStats? _stats;
+
+    protected override void OnDocument(PatinaDocument doc) => Recompute();
+
+    private void Recompute()
+    {
+        if (Document is null)
+        {
+            return;
+        }
+
+        _items = PatinaQueries.Queue(Document, Today, _filter);
+        _stats = PatinaQueries.QueueStatistics(Document, Today);
+    }
+
+    private void SetFilter(QueueFilter f)
+    {
+        _filter = f;
+        Recompute();
+    }
+}

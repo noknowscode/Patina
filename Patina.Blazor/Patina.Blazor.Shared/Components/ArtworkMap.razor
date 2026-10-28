@@ -1,0 +1,97 @@
+@inject IJSRuntime JS
+@inject Text T
+@implements IAsyncDisposable
+
+@*
+    The collection map: Leaflet over OSM tiles muted by CSS, one pin per artwork in its grade colour (hollow stone
+    when unsurveyed), the selected pin larger with an ink outline. Click selects; click on the map clears.
+    Uno uses Mapsui with a muted tile source; the pin colours are the same Condition.xaml values.
+*@
+<div class="map" @ref="_element" role="img" aria-label="@T["Map_Name"]"></div>
+
+@code {
+    // Montréal, the same centre and scale as the Uno ArtworkMap (CityResolution 30 ≈ zoom 12.3).
+    private static readonly (double Lat, double Lon) Centre = (45.515, -73.585);
+    private const int Zoom = 12;
+
+    [Parameter] public IReadOnlyList<ArtworkSummary> Artworks { get; set; } = [];
+    [Parameter] public string? SelectedId { get; set; }
+    [Parameter] public EventCallback<string?> SelectedIdChanged { get; set; }
+
+    private ElementReference _element;
+    private IJSObjectReference? _module;
+    private DotNetObjectReference<ArtworkMap>? _self;
+    private bool _ready;
+    private string? _lastPins;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                _module = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Patina.Blazor.Shared/js/patina.js");
+                _self = DotNetObjectReference.Create(this);
+                _ready = await _module.InvokeAsync<bool>("createMap", _element, _self, new { lat = Centre.Lat, lon = Centre.Lon }, Zoom);
+            }
+            catch (JSException)
+            {
+                _ready = false;
+            }
+        }
+
+        if (_ready && _module is not null)
+        {
+            // Only push pins when something changed; Blazor re-renders this component on every parent render.
+            var pins = Artworks.Select(a => new { id = a.Id, lat = a.Latitude, lon = a.Longitude, color = GradeColor(a.Grade), title = a.Title }).ToList();
+            var signature = string.Join('|', pins.Select(p => p.id + p.color)) + "#" + SelectedId;
+            if (signature != _lastPins)
+            {
+                _lastPins = signature;
+                await _module.InvokeVoidAsync("setPins", _element, pins, SelectedId);
+                var selected = Artworks.FirstOrDefault(a => a.Id == SelectedId);
+                if (selected is not null)
+                {
+                    await _module.InvokeVoidAsync("panTo", _element, selected.Latitude, selected.Longitude);
+                }
+            }
+        }
+    }
+
+    [JSInvokable]
+    public Task OnPinClick(string id) => SelectedIdChanged.InvokeAsync(id);
+
+    [JSInvokable]
+    public Task OnMapClick() => SelectedIdChanged.InvokeAsync(null);
+
+    /// <summary>Mirrors Styles/Condition.xaml (Grade*InvariantColor); unsurveyed pins are hollow stone.</summary>
+    public static string GradeColor(ConditionGrade grade) => grade switch
+    {
+        ConditionGrade.Good => "#3E8762",
+        ConditionGrade.Fair => "#9C7C22",
+        ConditionGrade.Poor => "#C0632A",
+        ConditionGrade.Critical => "#D04436",
+        _ => "#8A9490",
+    };
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module is not null)
+        {
+            try
+            {
+                if (_ready)
+                {
+                    await _module.InvokeVoidAsync("destroyMap", _element);
+                }
+
+                await _module.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+            }
+        }
+
+        _self?.Dispose();
+    }
+}

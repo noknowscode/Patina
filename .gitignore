@@ -498,3 +498,6 @@ _shots/
 
 # local publish output and release artifacts
 _publish/
+
+# Patina.Blazor web head data (one collection per server)
+Patina.Blazor/Patina.Blazor.Web/App_Data/

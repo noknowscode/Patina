@@ -1,0 +1,57 @@
+@inject Text T
+
+@*
+    The hand-built counterpart of Uno's FeedView: one of four states around an async value.
+    Progress → skeleton rows (or a caller-supplied template); Error → title + message + Retry; None → the caller's
+    invitation; Value → the content. The Uno app declares these as four DataTemplates per feed; here they are
+    four parameters.
+*@
+@if (Error is not null)
+{
+    <div class="state entrance" role="alert">
+        <h2 class="t-title">@ErrorTitle</h2>
+        <p class="t-body t-muted">@Error</p>
+        @if (OnRetry.HasDelegate)
+        {
+            <button type="button" class="btn btn-filled" @onclick="OnRetry">@T["Common_Retry"]</button>
+        }
+    </div>
+}
+else if (Loading)
+{
+    @if (Progress is not null)
+    {
+        @Progress
+    }
+    else
+    {
+        <div class="skeleton" aria-busy="true" aria-hidden="true">
+            @for (var i = 0; i < SkeletonRows; i++)
+            {
+                <div></div>
+            }
+        </div>
+    }
+}
+else if (Empty)
+{
+    <div class="state entrance">
+        @None
+    </div>
+}
+else
+{
+    @ChildContent
+}
+
+@code {
+    [Parameter] public bool Loading { get; set; }
+    [Parameter] public bool Empty { get; set; }
+    [Parameter] public string? Error { get; set; }
+    [Parameter] public string ErrorTitle { get; set; } = "";
+    [Parameter] public EventCallback OnRetry { get; set; }
+    [Parameter] public int SkeletonRows { get; set; } = 4;
+    [Parameter] public RenderFragment? Progress { get; set; }
+    [Parameter] public RenderFragment? None { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

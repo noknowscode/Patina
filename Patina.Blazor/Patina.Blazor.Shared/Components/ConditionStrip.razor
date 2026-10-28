@@ -1,0 +1,21 @@
+@using Patina.Core.Model
+@inject Text T
+
+@*
+    The signature: four patches like a colour-calibration strip. Filled count = grade, each patch its grade colour,
+    numeral + word beside it. Grade is never colour alone. Same markup at both sizes; CSS does the rest.
+*@
+<div class="condition @(Large ? "large" : null)" data-grade="@((int)Grade)" role="img" aria-label="@T.Grade(Grade)">
+    <span class="patches" aria-hidden="true">
+        <span class="patch"></span><span class="patch"></span><span class="patch"></span><span class="patch"></span>
+    </span>
+    <span class="number" aria-hidden="true">@Number</span>
+    <span class="word" aria-hidden="true">@T.Enum(Grade)</span>
+</div>
+
+@code {
+    [Parameter] public ConditionGrade Grade { get; set; }
+    [Parameter] public bool Large { get; set; }
+
+    private string Number => Grade == ConditionGrade.Unsurveyed ? "–" : ((int)Grade).ToString(System.Globalization.CultureInfo.InvariantCulture);
+}

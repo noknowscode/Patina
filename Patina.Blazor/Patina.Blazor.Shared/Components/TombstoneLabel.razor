@@ -1,0 +1,28 @@
+@* The object label: accession (mono), title (display), artist · year, material · site · district. *@
+<div class="tombstone @(Compact ? "compact" : null)">
+    <span class="accession">@Accession</span>
+    @if (Compact)
+    {
+        <h2 class="title">@Title</h2>
+    }
+    else
+    {
+        <h1 class="title">@Title</h1>
+    }
+    @if (!string.IsNullOrEmpty(Byline))
+    {
+        <span class="byline">@Byline</span>
+    }
+    @if (!string.IsNullOrEmpty(Place))
+    {
+        <span class="place">@Place</span>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Accession { get; set; } = "";
+    [Parameter, EditorRequired] public string Title { get; set; } = "";
+    [Parameter] public string? Byline { get; set; }
+    [Parameter] public string? Place { get; set; }
+    [Parameter] public bool Compact { get; set; }
+}

@@ -1,0 +1,73 @@
+@inject Text T
+
+@*
+    Confirmation for destructive actions (discard draft, replace collection, restore sample). Pure Blazor: an
+    overlay with role="dialog", no JS. Uno used INavigator.ShowMessageDialogAsync with DialogAction callbacks.
+*@
+@if (_open)
+{
+    <div class="dialog-backdrop" @onclick="() => Close(false)">
+        <div class="confirm" role="dialog" aria-modal="true" aria-labelledby="confirm-title" @onclick:stopPropagation="true" @onkeydown="OnKeyDown">
+            <h2 id="confirm-title">@_title</h2>
+            <p class="t-body t-muted">@_body</p>
+            <div class="buttons">
+                <button type="button" class="btn btn-text" @onclick="() => Close(false)">@T["Common_Cancel"]</button>
+                <button type="button" class="btn btn-filled @(Destructive ? "btn-danger" : null)" @ref="_confirm" @onclick="() => Close(true)">@_confirmLabel</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool Destructive { get; set; }
+
+    private bool _open;
+    private string _title = "", _body = "", _confirmLabel = "";
+    private TaskCompletionSource<bool>? _result;
+    private ElementReference _confirm;
+    private bool _focusPending;
+
+    /// <summary>Shows the dialog and completes with the user's choice.</summary>
+    public Task<bool> AskAsync(string title, string body, string confirmLabel)
+    {
+        _title = title;
+        _body = body;
+        _confirmLabel = confirmLabel;
+        _result = new TaskCompletionSource<bool>();
+        _open = true;
+        _focusPending = true;
+        StateHasChanged();
+        return _result.Task;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_open && _focusPending)
+        {
+            _focusPending = false;
+            try
+            {
+                await _confirm.FocusAsync();
+            }
+            catch (Exception)
+            {
+                // Prerender or a closed circuit: focus is a nicety, never a failure.
+            }
+        }
+    }
+
+    private void OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape")
+        {
+            Close(false);
+        }
+    }
+
+    private void Close(bool confirmed)
+    {
+        _open = false;
+        _result?.TrySetResult(confirmed);
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,33 @@
+@inherits LayoutComponentBase
+@inject Text T
+
+@*
+    The frame: a vertical rail at Wide (800 px) and up, a bottom tab bar below. Both are the same three links;
+    CSS decides which one shows. Uno uses two utu:TabBar instances bound to the same navigation regions.
+*@
+<ThemeApplier />
+
+<div class="shell">
+    <nav class="rail" aria-label="Main">
+        <span class="wordmark" aria-hidden="true">@T["Main_Wordmark"]</span>
+        <NavLink class="nav-item" href="" Match="NavLinkMatch.All"><span class="icon" aria-hidden="true">▦</span><span>@T["Nav_Collection"]</span></NavLink>
+        <NavLink class="nav-item" href="queue"><span class="icon" aria-hidden="true">≡</span><span>@T["Nav_Queue"]</span></NavLink>
+        <NavLink class="nav-item" href="settings"><span class="icon" aria-hidden="true">⚙</span><span>@T["Nav_Settings"]</span></NavLink>
+    </nav>
+
+    <main class="content">
+        @Body
+    </main>
+
+    <nav class="tabs" aria-label="Main">
+        <NavLink class="nav-item" href="" Match="NavLinkMatch.All"><span class="icon" aria-hidden="true">▦</span><span>@T["Nav_Collection"]</span></NavLink>
+        <NavLink class="nav-item" href="queue"><span class="icon" aria-hidden="true">≡</span><span>@T["Nav_Queue"]</span></NavLink>
+        <NavLink class="nav-item" href="settings"><span class="icon" aria-hidden="true">⚙</span><span>@T["Nav_Settings"]</span></NavLink>
+    </nav>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>

@@ -13,5 +13,12 @@
     <PackageVersion Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageVersion Include="GitHubActionsTestLogger" Version="2.3.3" />
     <PackageVersion Include="Mapsui.Uno.WinUI" Version="5.1.0" />
+    <!-- Patina.Blazor (MAUI Blazor Hybrid + Blazor Server). MauiVersion comes from the MAUI workload. -->
+    <PackageVersion Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Localization" Version="10.0.0" />
+    <PackageVersion Include="bunit" Version="2.0.66" />
   </ItemGroup>
 </Project>

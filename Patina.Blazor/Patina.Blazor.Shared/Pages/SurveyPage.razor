@@ -1,0 +1,127 @@
+@page "/survey/{ArtworkId}"
+@layout DetailLayout
+
+<PageTitle>@T["Survey_Title"]</PageTitle>
+
+@*
+    One condition survey. Every change that matters (findings, photos) saves the draft at once, because a field
+    survey is interrupted by weather, traffic and battery. Submit grades it and proposes treatments.
+*@
+<header class="page-bar">
+    <button type="button" class="btn btn-text btn-icon" aria-label="@T["Survey_Back"]" @onclick="CloseAsync">←</button>
+    <h1>@T["Survey_Title"]</h1>
+</header>
+
+<ConfirmDialog @ref="_confirm" Destructive="true" />
+
+<StateView Loading="_artwork is null && _error is null" Error="@_error" ErrorTitle="@T["Artwork_ErrorTitle"]" OnRetry="LoadAsync" Empty="_gone">
+    <None>
+        <h2 class="t-title">@T["Artwork_GoneTitle"]</h2>
+        <p class="t-body t-muted">@T["Artwork_GoneBody"]</p>
+        <a class="btn btn-outlined" href="">@T["Nav_Collection"]</a>
+    </None>
+    <ChildContent>
+        <div class="page stack stack-2xl entrance" style="padding-top:20px">
+            <TombstoneLabel Compact="true" Accession="@_artwork!.Accession" Title="@_artwork.Title" Byline="@T.Place(_artwork)" />
+
+            <div class="stack stack-sm">
+                <span class="eyebrow">@T["Survey_GradeHeading"]</span>
+                <ConditionStrip Grade="_liveGrade" Large="true" />
+                <span class="t-body t-muted">@T["Survey_GradeRule"]</span>
+            </div>
+
+            <section class="stack stack-md">
+                <h2 class="section-title">@T["Survey_DetailsHeading"]</h2>
+                <div class="field">
+                    <label for="surveyor">@T["Survey_Surveyor_Header"]</label>
+                    <input id="surveyor" class="input" @bind="_surveyor" @bind:event="oninput" />
+                </div>
+                <div class="field">
+                    <label for="weather">@T["Survey_WeatherLabel"]</label>
+                    <select id="weather" class="select" @bind="_weather" aria-label="@T["Survey_Weather_Name"]">
+                        @foreach (var w in Enum.GetValues<Weather>())
+                        {
+                            <option value="@w">@T.Enum(w)</option>
+                        }
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="notes">@T["Survey_Notes_Header"]</label>
+                    <textarea id="notes" class="textarea" @bind="_notes" @bind:event="oninput"></textarea>
+                </div>
+                <PhotoStrip Label="@T["Survey_OverviewPhotos"]" Items="_surveyPhotos" OnAdded="AddSurveyPhotoAsync" OnRemove="RemoveSurveyPhotoAsync" OnFailed="SetMessage" />
+            </section>
+
+            <section class="stack stack-sm">
+                <h2 class="section-title">@T["Survey_FindingsHeading"]</h2>
+                @if (_findings.Count == 0)
+                {
+                    <p class="t-body t-muted">@T["Survey_NoFindings"]</p>
+                }
+                <ul class="stack">
+                    @foreach (var f in _findings)
+                    {
+                        <li @key="f.Id" class="row row-md" style="padding:8px 0;align-items:flex-start">
+                            <div class="grow stack" style="gap:2px">
+                                <span class="t-title-sm">@T.Finding(f)</span>
+                                @if (!string.IsNullOrWhiteSpace(f.Note))
+                                {
+                                    <span class="t-body t-muted">@f.Note</span>
+                                }
+                                @if (f.PhotoIds.Count > 0)
+                                {
+                                    <span class="t-small t-muted">@T.Count("Photos", f.PhotoIds.Count)</span>
+                                }
+                            </div>
+                            <button type="button" class="btn btn-text btn-sm" @onclick="() => RemoveFindingAsync(f)">@T["Survey_RemoveFinding"]</button>
+                        </li>
+                    }
+                </ul>
+
+                <div class="card" style="margin-top:8px">
+                    <div class="card-body">
+                        <h3 class="t-title" style="font-size:16px">@T["Survey_AddFindingHeading"]</h3>
+                        <div class="field">
+                            <label for="finding-type">@T["Survey_FindingTypeLabel"]</label>
+                            <select id="finding-type" class="select" @bind="_newType" aria-label="@T["Survey_FindingType_Name"]">
+                                <option value="">@T["Survey_FindingType_Placeholder"]</option>
+                                @foreach (var t in _findingTypes)
+                                {
+                                    <option value="@t">@T.Enum(t)</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="finding-zone">@T["Survey_FindingZone_Header"]</label>
+                            <input id="finding-zone" class="input" placeholder="@T["Survey_FindingZone_Placeholder"]" @bind="_newZone" @bind:event="oninput" />
+                        </div>
+                        <fieldset class="field" style="border:0;padding:0;margin:0">
+                            <legend class="field-label">@T["Survey_FindingSeverity_Header"]</legend>
+                            <div class="segmented severity">
+                                @foreach (var s in Enum.GetValues<Severity>())
+                                {
+                                    <button type="button" aria-pressed="@(s == _newSeverity ? "true" : "false")" @onclick="() => _newSeverity = s">@((int)s) @T.Enum(s)</button>
+                                }
+                            </div>
+                        </fieldset>
+                        <div class="field">
+                            <label for="finding-note">@T["Survey_FindingNote_Header"]</label>
+                            <textarea id="finding-note" class="textarea" style="min-height:64px" @bind="_newNote" @bind:event="oninput"></textarea>
+                        </div>
+                        <PhotoStrip Items="_findingPhotos" Small="true" Outlined="false" OnAdded="AddFindingPhoto" OnRemove="RemoveFindingPhoto" OnFailed="SetMessage" />
+                        <button type="button" class="btn btn-outlined" style="align-self:flex-start" @onclick="AddFindingAsync">@T["Survey_AddFinding"]</button>
+                    </div>
+                </div>
+            </section>
+
+            <div class="stack stack-md">
+                <p class="t-body message" role="status" aria-live="assertive">@_message</p>
+                <div class="actions">
+                    <button type="button" class="btn btn-filled" @onclick="SubmitAsync">@T["Survey_Submit"]</button>
+                    <button type="button" class="btn btn-outlined" @onclick="SaveDraftAsync">@T["Survey_SaveDraft"]</button>
+                    <button type="button" class="btn btn-text t-error" @onclick="DiscardAsync">@T["Survey_Discard"]</button>
+                </div>
+            </div>
+        </div>
+    </ChildContent>
+</StateView>

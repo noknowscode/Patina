@@ -1,0 +1,153 @@
+@page "/"
+@inherits StoreComponent
+@inject IJSRuntime JS
+
+<PageTitle>@T["ApplicationName"]</PageTitle>
+
+@*
+    The collection: every artwork ordered by urgency, filtered by search and a chip. Reads only; every write
+    happens on the artwork, survey and treatment pages. Below 1080 px the map is its own page; at Widest the list
+    (420 px) and the map sit side by side, the map full-bleed to the window edge.
+*@
+<div class="collection entrance">
+    <section class="list-pane">
+        <header class="page-head">
+            <div class="stack stack-xs">
+                <span class="eyebrow">@T["Collection_Eyebrow"]</span>
+                @if (_view is { } v)
+                {
+                    <div class="row row-md" style="align-items:baseline">
+                        <h1 class="t-display">@v.Stats.NeedsAttention</h1>
+                        <span class="t-title">@T["Collection_NeedAttention"]</span>
+                    </div>
+                    <div class="row row-md wrap t-body t-muted">
+                        <span>@T.Count("Works", v.Stats.Total)</span>
+                        <span>@T.Count("Critical", v.Stats.Critical)</span>
+                        <span>@T.Count("Overdue", v.Stats.Overdue)</span>
+                    </div>
+                }
+                else
+                {
+                    <h1 class="t-display" style="color:var(--color-outline-variant)">@(Error is null ? "…" : "—")</h1>
+                }
+            </div>
+            <a class="btn btn-text show-map" href="map"><span aria-hidden="true">⌖</span> @T["Collection_ShowMap"]</a>
+        </header>
+
+        <div class="stack stack-sm filters">
+            <input class="input" type="search" placeholder="@T["Collection_Search_Placeholder"]" aria-label="@T["Collection_Search_Placeholder"]"
+                   value="@_query" @oninput="OnQueryInput" />
+            <div class="chips" role="group">
+                @foreach (var f in Enum.GetValues<CollectionFilter>())
+                {
+                    <button type="button" class="chip" aria-pressed="@(f == _filter ? "true" : "false")" @onclick="() => SetFilter(f)">@T.Enum(f)</button>
+                }
+            </div>
+        </div>
+
+        <StateView Loading="Loading" Error="@Error" ErrorTitle="@T["Collection_ErrorTitle"]" OnRetry="RetryAsync" Empty="_view is { Items.Count: 0 }">
+            <None>
+                <h2 class="t-title">@T["Collection_NoMatchTitle"]</h2>
+                <p class="t-body t-muted">@T["Collection_NoMatchBody"]</p>
+                <button type="button" class="btn btn-outlined" @onclick="ClearFilters">@T["Collection_ClearFilters"]</button>
+            </None>
+            <ChildContent>
+                <ul class="list" aria-label="@T["Nav_Collection"]">
+                    @foreach (var a in _view!.Items)
+                    {
+                        <li @key="a.Id" @ref="_rows[a.Id]">
+                            <a class="list-row @(a.Id == _selectedId ? "is-selected" : null)" href="artwork/@a.Id">
+                                <div class="stack" style="gap:2px">
+                                    <span class="accession">@a.Accession</span>
+                                    <span class="t-title" style="font-size:16px">@a.Title</span>
+                                    <span class="t-body t-muted">@a.Artist · @T.Enum(a.Material)</span>
+                                    <div class="row row-md" style="margin-top:4px">
+                                        <span class="t-label-plain">@T.Due(a)</span>
+                                        @if (a.HasDraft)
+                                        {
+                                            <span class="t-label-plain t-primary">@T["Collection_DraftBadge"]</span>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="end">
+                                    <ConditionStrip Grade="a.Grade" />
+                                    @if (a.OpenTreatments > 0)
+                                    {
+                                        <span class="t-small t-muted">@T.Count("OpenTreatments", a.OpenTreatments)</span>
+                                    }
+                                </div>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </ChildContent>
+        </StateView>
+    </section>
+
+    <section class="map-pane">
+        @if (_view is not null)
+        {
+            <ArtworkMap Artworks="_view.Items" SelectedId="_selectedId" SelectedIdChanged="SelectAsync" />
+            <MapCallout Artwork="_selected" OnClose="() => SelectAsync(null)" />
+        }
+    </section>
+</div>
+
+@code {
+    private string _query = "";
+    private CollectionFilter _filter = CollectionFilter.All;
+    private CollectionView? _view;
+    private string? _selectedId;
+    private ArtworkSummary? _selected;
+    private readonly Dictionary<string, ElementReference> _rows = [];
+
+    protected override void OnDocument(PatinaDocument doc) => Recompute();
+
+    private void Recompute()
+    {
+        if (Document is null)
+        {
+            return;
+        }
+
+        _view = PatinaQueries.Collection(Document, Today, _query, _filter);
+        _selected = _view.Items.FirstOrDefault(a => a.Id == _selectedId);
+    }
+
+    private void OnQueryInput(ChangeEventArgs e)
+    {
+        _query = e.Value?.ToString() ?? "";
+        Recompute();
+    }
+
+    private void SetFilter(CollectionFilter f)
+    {
+        _filter = f;
+        Recompute();
+    }
+
+    private void ClearFilters()
+    {
+        _query = "";
+        _filter = CollectionFilter.All;
+        Recompute();
+    }
+
+    private async Task SelectAsync(string? id)
+    {
+        _selectedId = id;
+        _selected = _view?.Items.FirstOrDefault(a => a.Id == id);
+        StateHasChanged();
+        if (id is not null && _rows.TryGetValue(id, out var row))
+        {
+            try
+            {
+                await using var module = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Patina.Blazor.Shared/js/patina.js");
+                await module.InvokeVoidAsync("scrollIntoView", row);
+            }
+            catch (JSException)
+            {
+            }
+        }
+    }
+}

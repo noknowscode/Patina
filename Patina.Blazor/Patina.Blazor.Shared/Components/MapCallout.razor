@@ -1,0 +1,25 @@
+@inject Text T
+
+@* The selected pin's card over the map: accession, title, site, condition strip, open record. *@
+@if (Artwork is { } a)
+{
+    <div class="map-callout card entrance" role="region" aria-label="@a.Title">
+        <div class="card-body">
+            <div class="row row-md">
+                <div class="grow stack stack-xs">
+                    <span class="accession">@a.Accession</span>
+                    <span class="t-title">@a.Title</span>
+                    <span class="t-body t-muted">@a.Site</span>
+                </div>
+                <button type="button" class="btn btn-text btn-icon" aria-label="@T["Map_CloseCallout_Name"]" @onclick="() => OnClose.InvokeAsync()">×</button>
+            </div>
+            <ConditionStrip Grade="a.Grade" />
+            <a class="btn btn-filled btn-sm" style="align-self:flex-start" href="artwork/@a.Id">@T["Map_OpenRecord"]</a>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public ArtworkSummary? Artwork { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+}

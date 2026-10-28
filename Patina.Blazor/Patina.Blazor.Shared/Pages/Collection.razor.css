@@ -1,0 +1,12 @@
+.collection { display: grid; grid-template-columns: 1fr; flex: 1; min-height: 0; }
+.list-pane { display: flex; flex-direction: column; min-width: 0; }
+.filters { padding: var(--space-sm) var(--space-xl); }
+.map-pane { display: none; }
+
+/* Widest and up: list beside the map, map full-bleed to the window edge */
+@media (min-width: 1080px) {
+    .collection { grid-template-columns: var(--list-pane-width) 1fr; height: 100dvh; }
+    .list-pane { overflow-y: auto; border-right: 1px solid var(--color-outline-variant); }
+    .map-pane { display: block; position: relative; min-height: 0; }
+    ::deep .show-map { display: none; }
+}

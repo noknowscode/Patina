@@ -1,0 +1,14 @@
+.dossier { display: grid; grid-template-columns: 1fr; }
+.anchor { min-width: 0; }
+.support { padding-top: var(--space-2xl); }
+::deep .start-survey { align-self: stretch; }
+
+@media (min-width: 600px) {
+    ::deep .start-survey { align-self: flex-start; }
+}
+
+/* Wide: hero + label left, open work and history right */
+@media (min-width: 800px) {
+    .dossier { grid-template-columns: 1fr 1fr; align-items: start; }
+    .support { padding: var(--space-2xl) var(--space-2xl) 40px var(--space-sm); max-width: none; }
+}
