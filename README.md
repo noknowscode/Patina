@@ -1,3 +1,5 @@
+> **Moved to uno-lab.** This project now lives in the `Patina/` folder of [noknowscode/uno-lab](https://github.com/noknowscode/uno-lab/tree/main/Patina) (private). This repository is archived and kept for its history.
+
 # Patina
 
 Field app for a city's public-art conservation team. Conservators survey outdoor artworks (bronze, steel, stone,
