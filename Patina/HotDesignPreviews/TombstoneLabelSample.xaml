@@ -1,0 +1,14 @@
+<hd:Preview x:Class="Patina.HotDesignPreviews.TombstoneLabelSamplePreview"
+            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            xmlns:controls="using:Patina.Controls"
+            xmlns:hd="using:Uno.UI.HotDesign">
+  <StackPanel Spacing="{StaticResource Spacing2xl}" Padding="{StaticResource SpacingXlThickness}"
+              Background="{ThemeResource BackgroundBrush}">
+    <controls:TombstoneLabel Accession="PA-1931-004" Title="The Reader at Rest"
+                             Byline="Joseph Taillefer, 1931 · Bronze" Place="Square Phillips, Ville-Marie" />
+    <controls:TombstoneLabel Style="{StaticResource CompactTombstoneLabelStyle}"
+                             Accession="PA-1931-004" Title="The Reader at Rest"
+                             Byline="Square Phillips, Ville-Marie" />
+  </StackPanel>
+</hd:Preview>

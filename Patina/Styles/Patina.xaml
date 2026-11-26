@@ -27,6 +27,12 @@
   <x:Double x:Key="ContentMaxWidth">760</x:Double>
   <x:Double x:Key="ListPaneWidth">440</x:Double>
 
+  <!-- Glyph sizes for FontIcon (DESIGN.md has no icon scale, so they live here rather than in Tokens.xaml) -->
+  <x:Double x:Key="IconSizeXs">12</x:Double>
+  <x:Double x:Key="IconSizeSm">14</x:Double>
+  <x:Double x:Key="IconSizeMd">16</x:Double>
+  <x:Double x:Key="IconSizeLg">28</x:Double>
+
   <!-- Text roles derived from the generated ramp -->
   <Style x:Key="EyebrowTextStyle" TargetType="TextBlock" BasedOn="{StaticResource LabelMedium}">
     <Setter Property="Foreground" Value="{ThemeResource OnSurfaceVariantBrush}" />
@@ -76,28 +82,28 @@
                 <VisualState x:Name="Grade0" />
                 <VisualState x:Name="Grade1">
                   <VisualState.Setters>
-                    <Setter Target="P1.Fill" Value="{StaticResource Grade1InvariantBrush}" />
+                    <Setter Target="P1.Fill" Value="{ThemeResource Grade1InvariantBrush}" />
                   </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="Grade2">
                   <VisualState.Setters>
-                    <Setter Target="P1.Fill" Value="{StaticResource Grade2InvariantBrush}" />
-                    <Setter Target="P2.Fill" Value="{StaticResource Grade2InvariantBrush}" />
+                    <Setter Target="P1.Fill" Value="{ThemeResource Grade2InvariantBrush}" />
+                    <Setter Target="P2.Fill" Value="{ThemeResource Grade2InvariantBrush}" />
                   </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="Grade3">
                   <VisualState.Setters>
-                    <Setter Target="P1.Fill" Value="{StaticResource Grade3InvariantBrush}" />
-                    <Setter Target="P2.Fill" Value="{StaticResource Grade3InvariantBrush}" />
-                    <Setter Target="P3.Fill" Value="{StaticResource Grade3InvariantBrush}" />
+                    <Setter Target="P1.Fill" Value="{ThemeResource Grade3InvariantBrush}" />
+                    <Setter Target="P2.Fill" Value="{ThemeResource Grade3InvariantBrush}" />
+                    <Setter Target="P3.Fill" Value="{ThemeResource Grade3InvariantBrush}" />
                   </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="Grade4">
                   <VisualState.Setters>
-                    <Setter Target="P1.Fill" Value="{StaticResource Grade4InvariantBrush}" />
-                    <Setter Target="P2.Fill" Value="{StaticResource Grade4InvariantBrush}" />
-                    <Setter Target="P3.Fill" Value="{StaticResource Grade4InvariantBrush}" />
-                    <Setter Target="P4.Fill" Value="{StaticResource Grade4InvariantBrush}" />
+                    <Setter Target="P1.Fill" Value="{ThemeResource Grade4InvariantBrush}" />
+                    <Setter Target="P2.Fill" Value="{ThemeResource Grade4InvariantBrush}" />
+                    <Setter Target="P3.Fill" Value="{ThemeResource Grade4InvariantBrush}" />
+                    <Setter Target="P4.Fill" Value="{ThemeResource Grade4InvariantBrush}" />
                   </VisualState.Setters>
                 </VisualState>
               </VisualStateGroup>

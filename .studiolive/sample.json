@@ -12,10 +12,12 @@
   "sourcePath": "Patina/Patina.csproj",
   "iconUrl": "https://raw.githubusercontent.com/noknowscode/patina/studio/.studiolive/icon.png",
   "screenshots": [
-    "https://raw.githubusercontent.com/noknowscode/patina/studio/.studiolive/screenshots/collection-desktop.png",
-    "https://raw.githubusercontent.com/noknowscode/patina/studio/.studiolive/screenshots/artwork-desktop.png",
-    "https://raw.githubusercontent.com/noknowscode/patina/studio/.studiolive/screenshots/treatments-desktop.png",
-    "https://raw.githubusercontent.com/noknowscode/patina/studio/.studiolive/screenshots/treatment-desktop.png"
+    "https://raw.githubusercontent.com/noknowscode/patina/studio/.studiolive/screenshots/collection-light.png",
+    "https://raw.githubusercontent.com/noknowscode/patina/studio/.studiolive/screenshots/collection-dark.png",
+    "https://raw.githubusercontent.com/noknowscode/patina/studio/.studiolive/screenshots/artwork-light.png",
+    "https://raw.githubusercontent.com/noknowscode/patina/studio/.studiolive/screenshots/treatments-dark.png",
+    "https://raw.githubusercontent.com/noknowscode/patina/studio/.studiolive/screenshots/settings-dark.png",
+    "https://raw.githubusercontent.com/noknowscode/patina/studio/.studiolive/screenshots/collection-phone.png"
   ],
   "showcase": {
     "summary": "A field app for public-art conservators: a graded collection with a map, condition surveys with photos, and a treatment queue.",

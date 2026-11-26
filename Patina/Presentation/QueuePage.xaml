@@ -10,7 +10,7 @@
 
   <Page.Resources>
     <DataTemplate x:Key="QueueRowTemplate">
-      <Grid Padding="24,14" ColumnSpacing="16" AutomationProperties.Name="{Binding Title}">
+      <Grid Padding="24,14" ColumnSpacing="{StaticResource SpacingLg}" AutomationProperties.Name="{Binding Title}">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*" />
           <ColumnDefinition Width="Auto" />
@@ -19,9 +19,9 @@
           <StackPanel Orientation="Horizontal" Spacing="10">
             <TextBlock Text="{Binding Priority, Converter={StaticResource EnumText}}" Style="{StaticResource LabelMedium}"
                        Foreground="{ThemeResource OnSurfaceBrush}" />
-            <StackPanel Orientation="Horizontal" Spacing="4"
+            <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpacingXs}"
                         Visibility="{Binding IsLate, Converter={StaticResource VisibleWhen}, FallbackValue=Collapsed}">
-              <FontIcon Glyph="&#xE7BA;" FontSize="12" Foreground="{ThemeResource ErrorBrush}" />
+              <FontIcon Glyph="&#xE7BA;" FontSize="{StaticResource IconSizeXs}" Foreground="{ThemeResource ErrorBrush}" />
               <TextBlock x:Uid="Queue_Late" Text="Late" Style="{StaticResource LabelMedium}" Foreground="{ThemeResource ErrorBrush}" />
             </StackPanel>
           </StackPanel>
@@ -33,7 +33,7 @@
             <TextBlock Text="{Binding Accession}" Style="{StaticResource AccessionTextStyle}" VerticalAlignment="Center" />
           </StackPanel>
         </StackPanel>
-        <StackPanel Grid.Column="1" Spacing="4" HorizontalAlignment="Right" VerticalAlignment="Center">
+        <StackPanel Grid.Column="1" Spacing="{StaticResource SpacingXs}" HorizontalAlignment="Right" VerticalAlignment="Center">
           <TextBlock Text="{Binding Status, Converter={StaticResource EnumText}}" Style="{StaticResource LabelLarge}" HorizontalAlignment="Right" />
           <TextBlock Text="{Binding ScheduledFor, Converter={StaticResource DateText}}" Style="{StaticResource MonoTextStyle}"
                      HorizontalAlignment="Right" Foreground="{ThemeResource OnSurfaceVariantBrush}" />
@@ -52,17 +52,17 @@
       <RowDefinition Height="*" />
     </Grid.RowDefinitions>
 
-    <StackPanel Padding="24,28,24,8" Spacing="4">
+    <StackPanel Padding="24,28,24,8" Spacing="{StaticResource SpacingXs}">
       <TextBlock x:Uid="Queue_Eyebrow" Text="Treatment queue" Style="{StaticResource EyebrowTextStyle}" />
-      <mvux:FeedView Source="{Binding Stats}" IsTabStop="False">
+      <mvux:FeedView UndefinedTemplate="{Binding ProgressTemplate, RelativeSource={RelativeSource Self}}" Source="{Binding Stats}" IsTabStop="False">
         <mvux:FeedView.ValueTemplate>
           <DataTemplate>
             <StackPanel Spacing="2">
-              <StackPanel Orientation="Horizontal" Spacing="12">
+              <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpacingMd}">
                 <TextBlock Text="{Binding Data.Urgent}" Style="{StaticResource DisplayLarge}" AutomationProperties.HeadingLevel="Level1" />
                 <TextBlock x:Uid="Queue_Urgent" Text="urgent" Style="{StaticResource TitleMedium}" VerticalAlignment="Bottom" Margin="0,0,0,10" />
               </StackPanel>
-              <StackPanel Orientation="Horizontal" Spacing="12">
+              <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpacingMd}">
                 <TextBlock Text="{Binding Data.Open, Converter={StaticResource CountText}, ConverterParameter=Open}" Style="{StaticResource MutedBodyTextStyle}" />
                 <TextBlock Text="{Binding Data.InProgress, Converter={StaticResource CountText}, ConverterParameter=InProgress}" Style="{StaticResource MutedBodyTextStyle}" />
                 <TextBlock Text="{Binding Data.ScheduledThisWeek, Converter={StaticResource CountText}, ConverterParameter=ThisWeek}" Style="{StaticResource MutedBodyTextStyle}" />
@@ -98,7 +98,7 @@
       </utu:ChipGroup>
     </ScrollViewer>
 
-    <mvux:FeedView x:Name="QueueFeed" Grid.Row="2" Source="{Binding Treatments}" IsTabStop="False">
+    <mvux:FeedView UndefinedTemplate="{Binding ProgressTemplate, RelativeSource={RelativeSource Self}}" x:Name="QueueFeed" Grid.Row="2" Source="{Binding Treatments}" IsTabStop="False">
       <mvux:FeedView.ValueTemplate>
         <DataTemplate>
           <ListView ItemsSource="{Binding Data}"
@@ -122,7 +122,7 @@
       </mvux:FeedView.ProgressTemplate>
       <mvux:FeedView.NoneTemplate>
         <DataTemplate>
-          <StackPanel Spacing="12" Padding="24,32" HorizontalAlignment="Left">
+          <StackPanel Spacing="{StaticResource SpacingMd}" Padding="24,32" HorizontalAlignment="Left">
             <TextBlock x:Uid="Queue_EmptyTitle" Text="Nothing here" Style="{StaticResource TitleLarge}" />
             <TextBlock x:Uid="Queue_EmptyBody" Text="No treatments in this status. Submitted surveys propose treatments for serious and urgent findings."
                        Style="{StaticResource MutedBodyTextStyle}" MaxWidth="480" />
@@ -133,7 +133,7 @@
       </mvux:FeedView.NoneTemplate>
       <mvux:FeedView.ErrorTemplate>
         <DataTemplate>
-          <StackPanel Spacing="12" Padding="24,32" HorizontalAlignment="Left">
+          <StackPanel Spacing="{StaticResource SpacingMd}" Padding="24,32" HorizontalAlignment="Left">
             <TextBlock x:Uid="Queue_ErrorTitle" Text="The queue could not be opened" Style="{StaticResource TitleLarge}" />
             <TextBlock Text="{Binding Message}" Style="{StaticResource MutedBodyTextStyle}" />
             <Button x:Uid="Common_Retry" Content="Try again" Style="{StaticResource FilledButtonStyle}"

@@ -9,14 +9,14 @@
 
   <Page.Resources>
     <DataTemplate x:Key="TreatmentRowTemplate">
-      <Grid Padding="0,10" ColumnSpacing="12" AutomationProperties.Name="{Binding Title}">
+      <Grid Padding="0,10" ColumnSpacing="{StaticResource SpacingMd}" AutomationProperties.Name="{Binding Title}">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*" />
           <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <StackPanel Spacing="2">
           <TextBlock Text="{Binding Title}" Style="{StaticResource TitleSmall}" TextWrapping="WrapWholeWords" />
-          <StackPanel Orientation="Horizontal" Spacing="8">
+          <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpacingSm}">
             <TextBlock Text="{Binding Priority, Converter={StaticResource EnumText}}" Style="{StaticResource LabelMedium}"
                        Foreground="{ThemeResource OnSurfaceBrush}" />
             <TextBlock Text="·" Style="{StaticResource LabelMedium}" />
@@ -27,7 +27,7 @@
                        Visibility="{Binding ScheduledFor, Converter={StaticResource VisibleWhen}, FallbackValue=Collapsed}" />
           </StackPanel>
         </StackPanel>
-        <FontIcon Grid.Column="1" Glyph="&#xE76C;" FontSize="14" Foreground="{ThemeResource OnSurfaceVariantBrush}" />
+        <FontIcon Grid.Column="1" Glyph="&#xE76C;" FontSize="{StaticResource IconSizeSm}" Foreground="{ThemeResource OnSurfaceVariantBrush}" />
       </Grid>
     </DataTemplate>
   </Page.Resources>
@@ -40,7 +40,7 @@
 
     <utu:NavigationBar Content="{Binding Title}" utu:SafeArea.Insets="Top" />
 
-    <mvux:FeedView x:Name="DossierFeed" Grid.Row="1" Source="{Binding Dossier}" IsTabStop="False">
+    <mvux:FeedView UndefinedTemplate="{Binding ProgressTemplate, RelativeSource={RelativeSource Self}}" x:Name="DossierFeed" Grid.Row="1" Source="{Binding Dossier}" IsTabStop="False">
       <mvux:FeedView.ValueTemplate>
         <DataTemplate>
           <ScrollViewer utu:SafeArea.Insets="Bottom">
@@ -59,9 +59,9 @@
                 <Grid Height="{utu:Responsive Narrowest=240, Wide=380}" Background="{ThemeResource SurfaceVariantBrush}">
                   <Image controls:PhotoSource.FileName="{Binding Data.Cover.FileName}" Stretch="UniformToFill"
                          AutomationProperties.Name="Cover photograph" />
-                  <StackPanel Spacing="6" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="24"
+                  <StackPanel Spacing="6" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="{StaticResource SpacingXlThickness}"
                               Visibility="{Binding Data.Cover, Converter={StaticResource VisibleWhen}, ConverterParameter=invert, FallbackValue=Collapsed}">
-                    <FontIcon Glyph="&#xE722;" FontSize="28" Foreground="{ThemeResource OnSurfaceVariantBrush}" />
+                    <FontIcon Glyph="&#xE722;" FontSize="{StaticResource IconSizeLg}" Foreground="{ThemeResource OnSurfaceVariantBrush}" />
                     <TextBlock x:Uid="Artwork_NoPhotoTitle" Text="No photograph yet" Style="{StaticResource TitleSmall}" HorizontalAlignment="Center" />
                     <TextBlock x:Uid="Artwork_NoPhotoBody" Text="Photos added during a survey become the record photograph."
                                Style="{StaticResource MutedBodyTextStyle}" TextAlignment="Center" MaxWidth="280" />
@@ -74,7 +74,7 @@
                                            Byline="{Binding Data.Artwork, Converter={StaticResource BylineText}}"
                                            Place="{Binding Data.Artwork, Converter={StaticResource PlaceText}}" />
 
-                  <StackPanel Spacing="8">
+                  <StackPanel Spacing="{StaticResource SpacingSm}">
                     <TextBlock x:Uid="Artwork_ConditionHeading" Text="Condition" Style="{StaticResource EyebrowTextStyle}" />
                     <controls:ConditionStrip Grade="{Binding Data.Summary.Grade}" Style="{StaticResource LargeConditionStripStyle}" />
                     <TextBlock Text="{Binding Data.Summary, Converter={StaticResource DueText}}" Style="{StaticResource TitleSmall}" />
@@ -102,7 +102,7 @@
                           Padding="{utu:Responsive Narrowest='24,32,24,0', Wide='8,32,32,0'}"
                           Spacing="28"
                           MaxWidth="{StaticResource ContentMaxWidth}">
-                <StackPanel Spacing="4">
+                <StackPanel Spacing="{StaticResource SpacingXs}">
                   <TextBlock x:Uid="Artwork_OpenTreatments" Text="Open treatments" Style="{StaticResource SectionTitleTextStyle}" />
                   <TextBlock x:Uid="Artwork_NoOpenTreatments" Text="Nothing open. Serious and urgent findings become treatments when a survey is submitted."
                              Style="{StaticResource MutedBodyTextStyle}"
@@ -114,7 +114,7 @@
                             AutomationProperties.AutomationId="OpenTreatmentList" />
                 </StackPanel>
 
-                <StackPanel Spacing="4">
+                <StackPanel Spacing="{StaticResource SpacingXs}">
                   <TextBlock x:Uid="Artwork_History" Text="Condition history" Style="{StaticResource SectionTitleTextStyle}" />
                   <TextBlock x:Uid="Artwork_NoHistory" Text="Never surveyed. The first survey sets the grade and the survey schedule."
                              Style="{StaticResource MutedBodyTextStyle}"
@@ -124,7 +124,7 @@
                       <DataTemplate>
                         <StackPanel Spacing="6" Padding="0,12">
                           <utu:Divider Foreground="{ThemeResource OutlineVariantBrush}" Margin="0,0,0,8" />
-                          <Grid ColumnSpacing="12">
+                          <Grid ColumnSpacing="{StaticResource SpacingMd}">
                             <Grid.ColumnDefinitions>
                               <ColumnDefinition Width="*" />
                               <ColumnDefinition Width="Auto" />
@@ -151,7 +151,7 @@
                   </ItemsControl>
                 </StackPanel>
 
-                <StackPanel Spacing="4"
+                <StackPanel Spacing="{StaticResource SpacingXs}"
                             Visibility="{Binding Data.CompletedTreatments, Converter={StaticResource VisibleWhen}, FallbackValue=Collapsed}">
                   <TextBlock x:Uid="Artwork_CompletedTreatments" Text="Completed treatments" Style="{StaticResource SectionTitleTextStyle}" />
                   <ListView ItemsSource="{Binding Data.CompletedTreatments}"
@@ -171,7 +171,7 @@
       </mvux:FeedView.ProgressTemplate>
       <mvux:FeedView.NoneTemplate>
         <DataTemplate>
-          <StackPanel Spacing="12" Padding="24,32">
+          <StackPanel Spacing="{StaticResource SpacingMd}" Padding="24,32">
             <TextBlock x:Uid="Artwork_GoneTitle" Text="This record is no longer in the collection" Style="{StaticResource TitleLarge}" />
             <TextBlock x:Uid="Artwork_GoneBody" Text="It may have been removed by an import. Go back to the collection." Style="{StaticResource MutedBodyTextStyle}" />
           </StackPanel>
@@ -179,7 +179,7 @@
       </mvux:FeedView.NoneTemplate>
       <mvux:FeedView.ErrorTemplate>
         <DataTemplate>
-          <StackPanel Spacing="12" Padding="24,32">
+          <StackPanel Spacing="{StaticResource SpacingMd}" Padding="24,32">
             <TextBlock x:Uid="Artwork_ErrorTitle" Text="This record could not be opened" Style="{StaticResource TitleLarge}" />
             <TextBlock Text="{Binding Message}" Style="{StaticResource MutedBodyTextStyle}" />
             <Button x:Uid="Common_Retry" Content="Try again" Style="{StaticResource FilledButtonStyle}"

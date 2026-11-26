@@ -2,6 +2,7 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:controls="using:Patina.Controls"
+      xmlns:mvux="using:Uno.Extensions.Reactive.UI"
       xmlns:utu="using:Uno.Toolkit.UI"
       Background="{ThemeResource BackgroundBrush}">
   <Grid>
@@ -14,7 +15,44 @@
       <controls:ArtworkMap Artworks="{Binding Artworks}"
                            SelectedId="{Binding SelectedId, Mode=TwoWay}"
                            AutomationProperties.Name="Map of the collection" />
-      <controls:MapCallout Margin="16" VerticalAlignment="Bottom" />
+      <controls:MapCallout Margin="{StaticResource SpacingLgThickness}" VerticalAlignment="Bottom" />
+      <!-- The pins' data state over the map: nothing once the pins are drawn -->
+      <mvux:FeedView UndefinedTemplate="{Binding ProgressTemplate, RelativeSource={RelativeSource Self}}" x:Name="PinsFeed" Source="{Binding Artworks}" IsTabStop="False"
+                     VerticalAlignment="Top" Margin="{StaticResource SpacingLgThickness}">
+        <mvux:FeedView.ValueTemplate>
+          <DataTemplate>
+            <Grid />
+          </DataTemplate>
+        </mvux:FeedView.ValueTemplate>
+        <mvux:FeedView.ProgressTemplate>
+          <DataTemplate>
+            <ProgressBar IsIndeterminate="True" AutomationProperties.Name="Loading" />
+          </DataTemplate>
+        </mvux:FeedView.ProgressTemplate>
+        <mvux:FeedView.NoneTemplate>
+          <DataTemplate>
+            <utu:CardContentControl Style="{StaticResource StaticCardContentControlStyle}" MaxWidth="380" HorizontalAlignment="Left">
+              <StackPanel Spacing="{StaticResource SpacingSm}" Padding="20,16">
+                <TextBlock x:Uid="Map_EmptyTitle" Text="No artworks to place" Style="{StaticResource TitleLarge}" />
+                <TextBlock x:Uid="Map_EmptyBody" Text="The collection is empty. Import a collection or restore the sample collection in Settings."
+                           Style="{StaticResource MutedBodyTextStyle}" />
+              </StackPanel>
+            </utu:CardContentControl>
+          </DataTemplate>
+        </mvux:FeedView.NoneTemplate>
+        <mvux:FeedView.ErrorTemplate>
+          <DataTemplate>
+            <utu:CardContentControl Style="{StaticResource StaticCardContentControlStyle}" MaxWidth="380" HorizontalAlignment="Left">
+              <StackPanel Spacing="{StaticResource SpacingMd}" Padding="20,16">
+                <TextBlock x:Uid="Collection_ErrorTitle" Text="The collection could not be opened" Style="{StaticResource TitleLarge}" />
+                <TextBlock Text="{Binding Message}" Style="{StaticResource MutedBodyTextStyle}" />
+                <Button x:Uid="Common_Retry" Content="Try again" Style="{StaticResource FilledButtonStyle}"
+                        Command="{Binding Refresh, ElementName=PinsFeed}" />
+              </StackPanel>
+            </utu:CardContentControl>
+          </DataTemplate>
+        </mvux:FeedView.ErrorTemplate>
+      </mvux:FeedView>
     </Grid>
   </Grid>
 </Page>

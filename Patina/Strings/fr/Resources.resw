@@ -75,6 +75,8 @@
   <data name="Log_StatusReturned" xml:space="preserve"><value>Ramené à l'étape {0}.</value></data>
   <data name="Main_Wordmark.Text" xml:space="preserve"><value>Patina</value></data>
   <data name="Map_CloseCallout.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Fermer</value></data>
+  <data name="Map_EmptyBody.Text" xml:space="preserve"><value>La collection est vide. Importez une collection ou restaurez la collection d'exemple dans Réglages.</value></data>
+  <data name="Map_EmptyTitle.Text" xml:space="preserve"><value>Aucune œuvre à situer</value></data>
   <data name="Map_OpenRecord.Content" xml:space="preserve"><value>Ouvrir la fiche</value></data>
   <data name="Map_Title.Content" xml:space="preserve"><value>Carte de la collection</value></data>
   <data name="Nav_Collection.Content" xml:space="preserve"><value>Collection</value></data>
@@ -163,6 +165,7 @@
   <data name="Survey_DiscardConfirm" xml:space="preserve"><value>Supprimer</value></data>
   <data name="Survey_DiscardTitle" xml:space="preserve"><value>Supprimer ce brouillon?</value></data>
   <data name="Survey_DraftSaved" xml:space="preserve"><value>Brouillon enregistré.</value></data>
+  <data name="Survey_ErrorTitle.Text" xml:space="preserve"><value>Impossible d'ouvrir cette inspection</value></data>
   <data name="Survey_FindingNote.Header" xml:space="preserve"><value>Note</value></data>
   <data name="Survey_FindingSeverity.Header" xml:space="preserve"><value>Gravité</value></data>
   <data name="Survey_FindingType.PlaceholderText" xml:space="preserve"><value>Choisir un type</value></data>

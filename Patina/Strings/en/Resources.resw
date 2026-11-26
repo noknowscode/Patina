@@ -75,6 +75,8 @@
   <data name="Log_StatusReturned" xml:space="preserve"><value>Returned to {0}.</value></data>
   <data name="Main_Wordmark.Text" xml:space="preserve"><value>Patina</value></data>
   <data name="Map_CloseCallout.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Close</value></data>
+  <data name="Map_EmptyBody.Text" xml:space="preserve"><value>The collection is empty. Import a collection or restore the sample collection in Settings.</value></data>
+  <data name="Map_EmptyTitle.Text" xml:space="preserve"><value>No artworks to place</value></data>
   <data name="Map_OpenRecord.Content" xml:space="preserve"><value>Open record</value></data>
   <data name="Map_Title.Content" xml:space="preserve"><value>Collection map</value></data>
   <data name="Nav_Collection.Content" xml:space="preserve"><value>Collection</value></data>
@@ -163,6 +165,7 @@
   <data name="Survey_DiscardConfirm" xml:space="preserve"><value>Discard</value></data>
   <data name="Survey_DiscardTitle" xml:space="preserve"><value>Discard this draft?</value></data>
   <data name="Survey_DraftSaved" xml:space="preserve"><value>Draft saved.</value></data>
+  <data name="Survey_ErrorTitle.Text" xml:space="preserve"><value>This survey could not be opened</value></data>
   <data name="Survey_FindingNote.Header" xml:space="preserve"><value>Note</value></data>
   <data name="Survey_FindingSeverity.Header" xml:space="preserve"><value>Severity</value></data>
   <data name="Survey_FindingType.PlaceholderText" xml:space="preserve"><value>Choose a type</value></data>

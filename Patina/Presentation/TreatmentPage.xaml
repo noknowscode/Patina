@@ -19,30 +19,30 @@
         <Grid>
           <StackPanel MaxWidth="{StaticResource ContentMaxWidth}" HorizontalAlignment="Stretch" Spacing="28" Padding="24,20,24,40" controls:Entrance.IsEnabled="True">
 
-            <mvux:FeedView x:Name="DetailFeed" Source="{Binding Detail}" IsTabStop="False">
+            <mvux:FeedView UndefinedTemplate="{Binding ProgressTemplate, RelativeSource={RelativeSource Self}}" x:Name="DetailFeed" Source="{Binding Detail}" IsTabStop="False">
               <mvux:FeedView.ValueTemplate>
                 <DataTemplate>
-                  <StackPanel Spacing="24">
+                  <StackPanel Spacing="{StaticResource SpacingXl}">
                     <StackPanel Spacing="6">
                       <StackPanel Orientation="Horizontal" Spacing="10">
                         <TextBlock Text="{Binding Data.Treatment.Priority, Converter={StaticResource EnumText}}" Style="{StaticResource EyebrowTextStyle}" />
-                        <StackPanel Orientation="Horizontal" Spacing="4"
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpacingXs}"
                                     Visibility="{Binding Data.Summary.IsLate, Converter={StaticResource VisibleWhen}, FallbackValue=Collapsed}">
-                          <FontIcon Glyph="&#xE7BA;" FontSize="12" Foreground="{ThemeResource ErrorBrush}" />
+                          <FontIcon Glyph="&#xE7BA;" FontSize="{StaticResource IconSizeXs}" Foreground="{ThemeResource ErrorBrush}" />
                           <TextBlock x:Uid="Queue_Late" Text="Late" Style="{StaticResource LabelMedium}" Foreground="{ThemeResource ErrorBrush}" />
                         </StackPanel>
                       </StackPanel>
                       <TextBlock Text="{Binding Data.Treatment.Title}" Style="{StaticResource DisplaySmall}" TextWrapping="WrapWholeWords"
                                  AutomationProperties.HeadingLevel="Level1" />
                       <HyperlinkButton Command="{Binding Parent.OpenArtwork}" Padding="0" AutomationProperties.AutomationId="OpenArtwork">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpacingSm}">
                           <TextBlock Text="{Binding Data.Artwork.Title}" Style="{StaticResource TitleSmall}" />
                           <TextBlock Text="{Binding Data.Artwork.Accession}" Style="{StaticResource AccessionTextStyle}" VerticalAlignment="Center" />
                         </StackPanel>
                       </HyperlinkButton>
                     </StackPanel>
 
-                    <StackPanel Spacing="8"
+                    <StackPanel Spacing="{StaticResource SpacingSm}"
                                 Visibility="{Binding Data.Finding, Converter={StaticResource VisibleWhen}, FallbackValue=Collapsed}">
                       <TextBlock x:Uid="Treatment_Origin" Text="From the survey of" Style="{StaticResource EyebrowTextStyle}" />
                       <TextBlock Text="{Binding Data.Survey.Date, Converter={StaticResource DateText}}" Style="{StaticResource TitleSmall}" />
@@ -51,12 +51,12 @@
                                  Visibility="{Binding Data.Finding.Note, Converter={StaticResource VisibleWhen}, FallbackValue=Collapsed}" />
                     </StackPanel>
 
-                    <StackPanel Spacing="8">
+                    <StackPanel Spacing="{StaticResource SpacingSm}">
                       <TextBlock x:Uid="Treatment_LogHeading" Text="Log" Style="{StaticResource SectionTitleTextStyle}" />
                       <ItemsControl ItemsSource="{Binding Data.Treatment.Log}">
                         <ItemsControl.ItemTemplate>
                           <DataTemplate>
-                            <Grid ColumnSpacing="16" Padding="0,6">
+                            <Grid ColumnSpacing="{StaticResource SpacingLg}" Padding="0,6">
                               <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="112" />
                                 <ColumnDefinition Width="*" />
@@ -82,7 +82,7 @@
               </mvux:FeedView.ProgressTemplate>
               <mvux:FeedView.NoneTemplate>
                 <DataTemplate>
-                  <StackPanel Spacing="12">
+                  <StackPanel Spacing="{StaticResource SpacingMd}">
                     <TextBlock x:Uid="Treatment_GoneTitle" Text="This treatment is no longer in the queue" Style="{StaticResource TitleLarge}" />
                     <TextBlock x:Uid="Treatment_GoneBody" Text="It may have been removed by an import. Go back to the queue." Style="{StaticResource MutedBodyTextStyle}" />
                   </StackPanel>
@@ -90,7 +90,7 @@
               </mvux:FeedView.NoneTemplate>
               <mvux:FeedView.ErrorTemplate>
                 <DataTemplate>
-                  <StackPanel Spacing="12">
+                  <StackPanel Spacing="{StaticResource SpacingMd}">
                     <TextBlock x:Uid="Treatment_ErrorTitle" Text="This treatment could not be opened" Style="{StaticResource TitleLarge}" />
                     <TextBlock Text="{Binding Message}" Style="{StaticResource MutedBodyTextStyle}" />
                     <Button x:Uid="Common_Retry" Content="Try again" Style="{StaticResource FilledButtonStyle}"
@@ -109,7 +109,7 @@
               </ItemsControl.ItemsPanel>
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                  <StackPanel Orientation="Horizontal" Spacing="8">
+                  <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpacingSm}">
                     <Grid Width="28" Height="28">
                       <!-- xaml-lint: allow icon - step marker shape, the numeral and check glyph carry the meaning -->
                       <Ellipse Fill="{ThemeResource PrimaryBrush}"
@@ -120,7 +120,7 @@
                       <!-- xaml-lint: allow icon - step marker shape -->
                       <Ellipse Fill="{ThemeResource SecondaryContainerBrush}"
                                Visibility="{Binding IsDone, Converter={StaticResource VisibleWhen}, FallbackValue=Collapsed}" />
-                      <FontIcon Glyph="&#xE73E;" FontSize="14" Foreground="{ThemeResource OnSecondaryContainerBrush}"
+                      <FontIcon Glyph="&#xE73E;" FontSize="{StaticResource IconSizeSm}" Foreground="{ThemeResource OnSecondaryContainerBrush}"
                                 Visibility="{Binding IsDone, Converter={StaticResource VisibleWhen}, FallbackValue=Collapsed}" />
                       <TextBlock Text="{Binding Number}" Style="{StaticResource LabelLarge}" HorizontalAlignment="Center" VerticalAlignment="Center"
                                  Foreground="{ThemeResource OnPrimaryBrush}"
@@ -135,7 +135,7 @@
               </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <StackPanel Spacing="12" Visibility="{Binding IsEditable, Converter={StaticResource VisibleWhen}, FallbackValue=Collapsed}">
+            <StackPanel Spacing="{StaticResource SpacingMd}" Visibility="{Binding IsEditable, Converter={StaticResource VisibleWhen}, FallbackValue=Collapsed}">
               <CalendarDatePicker x:Uid="Treatment_Date" Header="Scheduled for"
                                   Date="{Binding ScheduledFor, Mode=TwoWay}"
                                   DateFormat="{}{day.integer} {month.abbreviated} {year.full}"
@@ -152,7 +152,7 @@
               <TextBlock Text="{Binding Message}" Style="{StaticResource BodyMedium}" TextWrapping="WrapWholeWords"
                          AutomationProperties.LiveSetting="Assertive" AutomationProperties.AutomationId="TreatmentMessage"
                          Visibility="{Binding Message, Converter={StaticResource VisibleWhen}, FallbackValue=Collapsed}" />
-              <StackPanel Orientation="{utu:Responsive Narrowest=Vertical, Normal=Horizontal}" Spacing="12">
+              <StackPanel Orientation="{utu:Responsive Narrowest=Vertical, Normal=Horizontal}" Spacing="{StaticResource SpacingMd}">
                 <Button Content="{Binding Status, Converter={StaticResource NextActionText}}"
                         Command="{Binding Advance}" Style="{StaticResource FilledButtonStyle}"
                         AutomationProperties.AutomationId="Advance"

@@ -10,7 +10,7 @@
     <DataTemplate x:Key="SurveyPhotoTemplate">
       <Grid Width="96" Height="96">
         <!-- xaml-lint: allow card - clips a photo thumbnail; the fill shows while it loads -->
-        <Border CornerRadius="6" Background="{ThemeResource SurfaceVariantBrush}">
+        <Border CornerRadius="{StaticResource RadiusSmCornerRadius}" Background="{ThemeResource SurfaceVariantBrush}">
           <Image controls:PhotoSource.FileName="{Binding FileName}" Stretch="UniformToFill"
                  AutomationProperties.Name="{Binding OriginalName}" />
         </Border>
@@ -18,14 +18,14 @@
                 AutomationProperties.Name="Remove photo"
                 Command="{utu:AncestorBinding AncestorType=Page, Path=DataContext.RemoveSurveyPhoto}"
                 CommandParameter="{Binding}">
-          <FontIcon Glyph="&#xE711;" FontSize="12" />
+          <FontIcon Glyph="&#xE711;" FontSize="{StaticResource IconSizeXs}" />
         </Button>
       </Grid>
     </DataTemplate>
     <DataTemplate x:Key="FindingPhotoTemplate">
       <Grid Width="72" Height="72">
         <!-- xaml-lint: allow card - clips a photo thumbnail; the fill shows while it loads -->
-        <Border CornerRadius="6" Background="{ThemeResource SurfaceVariantBrush}">
+        <Border CornerRadius="{StaticResource RadiusSmCornerRadius}" Background="{ThemeResource SurfaceVariantBrush}">
           <Image controls:PhotoSource.FileName="{Binding FileName}" Stretch="UniformToFill"
                  AutomationProperties.Name="{Binding OriginalName}" />
         </Border>
@@ -33,12 +33,12 @@
                 AutomationProperties.Name="Remove photo"
                 Command="{utu:AncestorBinding AncestorType=Page, Path=DataContext.RemoveFindingPhoto}"
                 CommandParameter="{Binding}">
-          <FontIcon Glyph="&#xE711;" FontSize="12" />
+          <FontIcon Glyph="&#xE711;" FontSize="{StaticResource IconSizeXs}" />
         </Button>
       </Grid>
     </DataTemplate>
     <ItemsPanelTemplate x:Key="HorizontalPanel">
-      <StackPanel Orientation="Horizontal" Spacing="8" />
+      <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpacingSm}" />
     </ItemsPanelTemplate>
   </Page.Resources>
 
@@ -65,17 +65,34 @@
         <Grid>
           <StackPanel MaxWidth="{StaticResource ContentMaxWidth}" HorizontalAlignment="Stretch" Spacing="28" Padding="24,20,24,40" controls:Entrance.IsEnabled="True">
 
-            <mvux:FeedView Source="{Binding Header}" IsTabStop="False">
-              <DataTemplate>
-                <controls:TombstoneLabel Style="{StaticResource CompactTombstoneLabelStyle}"
-                                         Accession="{Binding Data.Artwork.Accession}"
-                                         Title="{Binding Data.Artwork.Title}"
-                                         Byline="{Binding Data.Artwork, Converter={StaticResource PlaceText}}" />
-              </DataTemplate>
+            <mvux:FeedView UndefinedTemplate="{Binding ProgressTemplate, RelativeSource={RelativeSource Self}}" x:Name="HeaderFeed" Source="{Binding Header}" IsTabStop="False">
+              <mvux:FeedView.ValueTemplate>
+                <DataTemplate>
+                  <controls:TombstoneLabel Style="{StaticResource CompactTombstoneLabelStyle}"
+                                           Accession="{Binding Data.Artwork.Accession}"
+                                           Title="{Binding Data.Artwork.Title}"
+                                           Byline="{Binding Data.Artwork, Converter={StaticResource PlaceText}}" />
+                </DataTemplate>
+              </mvux:FeedView.ValueTemplate>
+              <mvux:FeedView.ProgressTemplate>
+                <DataTemplate>
+                  <ContentControl ContentTemplate="{StaticResource ListProgressTemplate}" />
+                </DataTemplate>
+              </mvux:FeedView.ProgressTemplate>
+              <mvux:FeedView.ErrorTemplate>
+                <DataTemplate>
+                  <StackPanel Spacing="{StaticResource SpacingMd}">
+                    <TextBlock x:Uid="Survey_ErrorTitle" Text="This survey could not be opened" Style="{StaticResource TitleLarge}" />
+                    <TextBlock Text="{Binding Message}" Style="{StaticResource MutedBodyTextStyle}" />
+                    <Button x:Uid="Common_Retry" Content="Try again" Style="{StaticResource FilledButtonStyle}"
+                            Command="{Binding Refresh, ElementName=HeaderFeed}" />
+                  </StackPanel>
+                </DataTemplate>
+              </mvux:FeedView.ErrorTemplate>
             </mvux:FeedView>
 
             <!-- Anchor: the grade this survey will submit with -->
-            <StackPanel Spacing="8">
+            <StackPanel Spacing="{StaticResource SpacingSm}">
               <TextBlock x:Uid="Survey_GradeHeading" Text="Grade from findings" Style="{StaticResource EyebrowTextStyle}" />
               <controls:ConditionStrip Grade="{Binding LiveGrade}" Style="{StaticResource LargeConditionStripStyle}"
                                        AutomationProperties.AutomationId="LiveGrade" />
@@ -83,11 +100,11 @@
                          Style="{StaticResource MutedBodyTextStyle}" />
             </StackPanel>
 
-            <StackPanel Spacing="12">
+            <StackPanel Spacing="{StaticResource SpacingMd}">
               <TextBlock x:Uid="Survey_DetailsHeading" Text="Survey" Style="{StaticResource SectionTitleTextStyle}" />
               <TextBox x:Uid="Survey_Surveyor" Header="Surveyor" Text="{Binding Form.Surveyor, Mode=TwoWay}"
                        AutomationProperties.AutomationId="Surveyor" />
-              <StackPanel Spacing="4">
+              <StackPanel Spacing="{StaticResource SpacingXs}">
                 <TextBlock x:Uid="Survey_WeatherLabel" Text="Weather" Style="{StaticResource LabelLarge}" />
                 <ComboBox ItemsSource="{Binding WeatherOptions}"
                           SelectedIndex="{Binding Form.WeatherIndex, Mode=TwoWay}"
@@ -97,22 +114,22 @@
               </StackPanel>
               <TextBox x:Uid="Survey_Notes" Header="General notes" Text="{Binding Form.Notes, Mode=TwoWay}"
                        AcceptsReturn="True" TextWrapping="Wrap" MinHeight="96" />
-              <StackPanel Spacing="8">
+              <StackPanel Spacing="{StaticResource SpacingSm}">
                 <TextBlock x:Uid="Survey_OverviewPhotos" Text="Overview photographs" Style="{StaticResource LabelLarge}" />
                 <ItemsControl ItemsSource="{Binding SurveyPhotos}" ItemsPanel="{StaticResource HorizontalPanel}"
                               ItemTemplate="{StaticResource SurveyPhotoTemplate}" />
-                <StackPanel Orientation="Horizontal" Spacing="8">
+                <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpacingSm}">
                   <Button Style="{StaticResource OutlinedButtonStyle}" Command="{Binding AddSurveyPhoto}"
                           AutomationProperties.AutomationId="AddSurveyPhoto">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                      <FontIcon Glyph="&#xEB9F;" FontSize="16" />
+                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpacingSm}">
+                      <FontIcon Glyph="&#xEB9F;" FontSize="{StaticResource IconSizeMd}" />
                       <TextBlock x:Uid="Survey_AddPhoto" Text="Add photo" />
                     </StackPanel>
                   </Button>
                   <Button Style="{StaticResource OutlinedButtonStyle}" Command="{Binding CaptureSurveyPhoto}"
                           Visibility="{Binding CanCapture, Converter={StaticResource VisibleWhen}, FallbackValue=Collapsed}">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                      <FontIcon Glyph="&#xE722;" FontSize="16" />
+                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpacingSm}">
+                      <FontIcon Glyph="&#xE722;" FontSize="{StaticResource IconSizeMd}" />
                       <TextBlock x:Uid="Survey_TakePhoto" Text="Take photo" />
                     </StackPanel>
                   </Button>
@@ -120,7 +137,7 @@
               </StackPanel>
             </StackPanel>
 
-            <StackPanel Spacing="8">
+            <StackPanel Spacing="{StaticResource SpacingSm}">
               <TextBlock x:Uid="Survey_FindingsHeading" Text="Findings" Style="{StaticResource SectionTitleTextStyle}" />
               <TextBlock x:Uid="Survey_NoFindings" Text="No findings yet. A survey with no findings submits as Good."
                          Style="{StaticResource MutedBodyTextStyle}"
@@ -128,7 +145,7 @@
               <ItemsControl ItemsSource="{Binding Findings}">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate>
-                    <Grid ColumnSpacing="12" Padding="0,8">
+                    <Grid ColumnSpacing="{StaticResource SpacingMd}" Padding="0,8">
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
@@ -151,9 +168,9 @@
               </ItemsControl>
 
               <utu:CardContentControl Style="{StaticResource StaticCardContentControlStyle}" HorizontalAlignment="Stretch" Margin="0,8,0,0">
-                <StackPanel Spacing="12" Padding="20">
+                <StackPanel Spacing="{StaticResource SpacingMd}" Padding="20">
                   <TextBlock x:Uid="Survey_AddFindingHeading" Text="Add a finding" Style="{StaticResource TitleMedium}" />
-                  <StackPanel Spacing="4">
+                  <StackPanel Spacing="{StaticResource SpacingXs}">
                     <TextBlock x:Uid="Survey_FindingTypeLabel" Text="Type" Style="{StaticResource LabelLarge}" />
                     <ComboBox x:Uid="Survey_FindingType"
                               PlaceholderText="Choose a type"
@@ -177,17 +194,17 @@
                            AcceptsReturn="True" TextWrapping="Wrap" />
                   <ItemsControl ItemsSource="{Binding FindingPhotos}" ItemsPanel="{StaticResource HorizontalPanel}"
                                 ItemTemplate="{StaticResource FindingPhotoTemplate}" />
-                  <StackPanel Orientation="Horizontal" Spacing="8">
+                  <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpacingSm}">
                     <Button Style="{StaticResource TextButtonStyle}" Command="{Binding AddFindingPhoto}">
-                      <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xEB9F;" FontSize="16" />
+                      <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpacingSm}">
+                        <FontIcon Glyph="&#xEB9F;" FontSize="{StaticResource IconSizeMd}" />
                         <TextBlock x:Uid="Survey_AddPhoto" Text="Add photo" />
                       </StackPanel>
                     </Button>
                     <Button Style="{StaticResource TextButtonStyle}" Command="{Binding CaptureFindingPhoto}"
                             Visibility="{Binding CanCapture, Converter={StaticResource VisibleWhen}, FallbackValue=Collapsed}">
-                      <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE722;" FontSize="16" />
+                      <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpacingSm}">
+                        <FontIcon Glyph="&#xE722;" FontSize="{StaticResource IconSizeMd}" />
                         <TextBlock x:Uid="Survey_TakePhoto" Text="Take photo" />
                       </StackPanel>
                     </Button>
@@ -200,13 +217,13 @@
               </utu:CardContentControl>
             </StackPanel>
 
-            <StackPanel Spacing="12">
+            <StackPanel Spacing="{StaticResource SpacingMd}">
               <TextBlock Text="{Binding Message}" Style="{StaticResource BodyMedium}" TextWrapping="WrapWholeWords"
                          Foreground="{ThemeResource OnSurfaceBrush}"
                          AutomationProperties.LiveSetting="Assertive"
                          AutomationProperties.AutomationId="SurveyMessage"
                          Visibility="{Binding Message, Converter={StaticResource VisibleWhen}, FallbackValue=Collapsed}" />
-              <StackPanel Orientation="{utu:Responsive Narrowest=Vertical, Normal=Horizontal}" Spacing="12">
+              <StackPanel Orientation="{utu:Responsive Narrowest=Vertical, Normal=Horizontal}" Spacing="{StaticResource SpacingMd}">
                 <Button x:Uid="Survey_Submit" Content="Submit survey" Style="{StaticResource FilledButtonStyle}"
                         Command="{Binding Submit}" AutomationProperties.AutomationId="SubmitSurvey"
                         HorizontalAlignment="{utu:Responsive Narrowest=Stretch, Normal=Left}" />

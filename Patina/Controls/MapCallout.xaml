@@ -14,7 +14,7 @@
                                 Content="{Binding}">
           <utu:CardContentControl.ContentTemplate>
             <DataTemplate>
-              <Grid Padding="20,16" RowSpacing="12">
+              <Grid Padding="20,16" RowSpacing="{StaticResource SpacingMd}">
                 <Grid.RowDefinitions>
                   <RowDefinition Height="Auto" />
                   <RowDefinition Height="Auto" />
@@ -34,7 +34,7 @@
                         x:Uid="Map_CloseCallout"
                         AutomationProperties.Name="Close"
                         Command="{Binding Parent.ClearSelection}">
-                  <FontIcon Glyph="&#xE711;" FontSize="16" />
+                  <FontIcon Glyph="&#xE711;" FontSize="{StaticResource IconSizeMd}" />
                 </Button>
                 <controls:ConditionStrip Grid.Row="1" Grade="{Binding Data.Grade}" />
                 <Button Grid.Row="2" Grid.ColumnSpan="2"
@@ -50,13 +50,20 @@
       </DataTemplate>
     </mvux:FeedView.ValueTemplate>
     <mvux:FeedView.NoneTemplate>
-      <DataTemplate />
+      <!-- Not an empty DataTemplate: that prints its context (in the error state, the exception) as text -->
+      <DataTemplate>
+        <Grid />
+      </DataTemplate>
     </mvux:FeedView.NoneTemplate>
     <mvux:FeedView.ProgressTemplate>
-      <DataTemplate />
+      <DataTemplate>
+        <Grid />
+      </DataTemplate>
     </mvux:FeedView.ProgressTemplate>
     <mvux:FeedView.ErrorTemplate>
-      <DataTemplate />
+      <DataTemplate>
+        <Grid />
+      </DataTemplate>
     </mvux:FeedView.ErrorTemplate>
   </mvux:FeedView>
 </UserControl>

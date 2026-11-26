@@ -6,7 +6,7 @@
 condition surveys with findings and photos, a graded collection with a map, and a treatment queue, built on Uno
 Platform with MVUX, Navigation Extensions, the Toolkit and Material.
 
-![The collection on desktop](.studiolive/screenshots/collection-desktop.png)
+![The collection on desktop, Light](.studiolive/screenshots/collection-light.png)
 
 Field app for a city's public-art conservation team. Conservators survey outdoor artworks (bronze, steel, stone,
 murals, mosaic), record findings with photos, and the app grades condition, schedules the next survey and turns
@@ -26,9 +26,11 @@ The sample collection is fictional: invented works and artists placed at real Mo
 | Treatment | Schedule, assign, log, step through to done (a completion note is required) |
 | Settings | Surveyor name, theme, reduced motion, language, export / import / restore sample data |
 
-| Artwork record | Treatment queue |
+| Artwork record (Light) | Treatment queue (Dark) |
 |---|---|
-| ![An artwork record](.studiolive/screenshots/artwork-desktop.png) | ![The treatment queue](.studiolive/screenshots/treatments-desktop.png) |
+| ![An artwork record](.studiolive/screenshots/artwork-light.png) | ![The treatment queue](.studiolive/screenshots/treatments-dark.png) |
+| **Collection (Dark)** | **Phone, 390 px (Light and Dark)** |
+| ![The collection at night](.studiolive/screenshots/collection-dark.png) | ![The collection on a phone](.studiolive/screenshots/collection-phone.png) |
 
 Rules (in `Patina.Core`, all unit tested): the worst finding sets the grade (three moderate findings count as Poor);
 survey intervals depend on material and shorten with condition; submitting proposes one treatment per serious or
@@ -95,6 +97,31 @@ dotnet run --project <DesignMd2Uno>/src/DesignMd2Uno.Cli -- docs/DESIGN.md -o Pa
 
 Strings: edit the table in `tools/make_resw.py` and run it; it writes both `Strings/en` and `Strings/fr` and lists
 any key used in code or XAML that has no translation.
+
+## Theming, layout and previews
+
+- **Theme:** `App.xaml` merges `MaterialToolkitTheme` with `ThemeColors OverrideSource="Styles/ColorPaletteOverride.xaml"`:
+  the Material roles carry the Patina brand in Light and Dark (verdigris `#2F6F62` primary, bronze secondary, slate
+  tertiary, limestone `#EEF0EC` background, paper surface; Dark is "the same collection at night"), so Studio's
+  Themes tab rebrands the whole app. The app follows the system theme; Settings > Theme can pin Light or Dark.
+- **Tokens:** palette, type ramp (IBM Plex Sans, Sans Condensed, Mono on the Material style keys) and spacing/radius
+  (`SpacingXs`…`Spacing3xl`, `RadiusSm`…`RadiusFull`) are generated from `docs/DESIGN.md` (see below). App-specific
+  keys live in `Styles/Condition.xaml` (grade ramp and map pin colours, `Light`/`Dark`/`Default` theme dictionaries)
+  and `Styles/Patina.xaml` (icon sizes `IconSizeXs`…`IconSizeLg`, content widths, text roles, shared state
+  templates). Pages carry no hex colours and no text `FontSize`; the map reads its colours from these resources and
+  redraws on `ActualThemeChanged`.
+- **Responsive:** rail at 800 px and up, bottom tab bar below; the collection map pane joins the list at 1080 px and
+  opens as its own page below that. Detail pages use `{utu:Responsive}`; the three cached pages use `AdaptiveTrigger`
+  (Toolkit ResponsiveExtension bug, `docs/KNOWN-ISSUES.md`). Usable from 360 to 1920 px.
+- **States:** every feed is shown in an `mvux:FeedView` with progress (also used as the undefined state, since the
+  store's `Watch` feed shows nothing until its first document), empty (with the action that fills it) and error
+  (message and Try again bound to the FeedView's `Refresh`) templates.
+- **Hot Design previews:** `Patina/HotDesignPreviews/` (Debug only; absent from Release). `PreviewStore.cs` runs the
+  real `PatinaStore` over a `PreviewDocumentFile` whose read stays pending (Loading), returns an empty collection
+  (Empty), fails (Error) or seeds the sample collection in memory (Data); `PreviewNavigator`, `PreviewAppSettings`
+  and `PreviewPhotoService` fill the other constructor arguments. Previews: Collection, Treatments queue, Map,
+  Artwork and Treatment (Data, Loading, Empty, Error), Survey (Data, Loading, Error), plus the condition strip
+  (every grade) and the object label.
 
 ## Data
 

@@ -47,12 +47,19 @@ public sealed partial class ArtworkMap : UserControl
     private MemoryLayer? _pins;
     private bool _initialized;
     private ElementTheme _tileTheme;
+    private PinPalette _palette;
 
     public ArtworkMap()
     {
         Content = _map;
+        _palette = PinPalette.For(ActualTheme);
         Loaded += (_, _) => Initialize();
-        ActualThemeChanged += (_, _) => ApplyTiles();
+        ActualThemeChanged += (_, _) =>
+        {
+            _palette = PinPalette.For(ActualTheme);
+            ApplyTiles();
+            Redraw();
+        };
     }
 
     public object? Artworks
@@ -123,9 +130,14 @@ public sealed partial class ArtworkMap : UserControl
         }
 
         var osm = OpenStreetMap.CreateTileLayer(TileUserAgent);
+        var ground = ThemeColors.Get("BackgroundColor", ActualTheme);
+        var groundColor = new SKColor(ground.R, ground.G, ground.B);
         var matrix = ActualTheme == ElementTheme.Dark
-            ? MutedTileSource.NightMatrix(new SKColor(0x15, 0x16, 0x14), 0.06f)
-            : MutedTileSource.GroundMatrix(new SKColor(0xEE, 0xF0, 0xEC), 0.36f, 0.66f);
+            ? MutedTileSource.NightMatrix(groundColor, 0.06f)
+            : MutedTileSource.GroundMatrix(groundColor, 0.36f, 0.66f);
+
+        // The ground shows until tiles arrive (and stays when the tile server is unreachable).
+        map.BackColor = Mapsui.Styles.Color.FromArgb(ground.A, ground.R, ground.G, ground.B);
 
         if (osm.TileSource is BruTile.IHttpTileSource http)
         {
@@ -149,12 +161,12 @@ public sealed partial class ArtworkMap : UserControl
         var selected = SelectedId;
         _pins.Features = Items
             .OrderBy(a => a.Id == selected)
-            .Select(a => Pin(a, a.Id == selected))
+            .Select(a => Pin(a, a.Id == selected, _palette))
             .ToList();
         _map.Refresh();
     }
 
-    private static PointFeature Pin(ArtworkSummary artwork, bool selected)
+    private static PointFeature Pin(ArtworkSummary artwork, bool selected, PinPalette palette)
     {
         var (x, y) = SphericalMercator.FromLonLat(artwork.Longitude, artwork.Latitude);
         var feature = new PointFeature(x, y);
@@ -163,21 +175,40 @@ public sealed partial class ArtworkMap : UserControl
         {
             SymbolType = SymbolType.Ellipse,
             SymbolScale = selected ? 1.25 : 0.75,
-            Fill = new Mapsui.Styles.Brush(GradeColor(artwork.Grade)),
-            Outline = new Pen(selected ? Mapsui.Styles.Color.FromArgb(255, 0x1C, 0x23, 0x21) : Mapsui.Styles.Color.White, selected ? 3 : 2),
+            Fill = palette.Fill(artwork.Grade),
+            Outline = selected ? palette.SelectedRing : palette.Ring,
         });
         return feature;
     }
 
-    /// <summary>Mirrors Styles/Condition.xaml (Grade*InvariantColor); unsurveyed pins are hollow stone.</summary>
-    private static Mapsui.Styles.Color GradeColor(ConditionGrade grade) => grade switch
+    /// <summary>
+    /// Pin fills and rings from Styles/Condition.xaml (Grade*InvariantColor, GradeUnsurveyedColor, MapPin*RingColor),
+    /// resolved once per theme so a redraw only allocates the features.
+    /// </summary>
+    private readonly record struct PinPalette(Mapsui.Styles.Brush[] Fills, Pen Ring, Pen SelectedRing)
     {
-        ConditionGrade.Good => Mapsui.Styles.Color.FromArgb(255, 0x3E, 0x87, 0x62),
-        ConditionGrade.Fair => Mapsui.Styles.Color.FromArgb(255, 0x9C, 0x7C, 0x22),
-        ConditionGrade.Poor => Mapsui.Styles.Color.FromArgb(255, 0xC0, 0x63, 0x2A),
-        ConditionGrade.Critical => Mapsui.Styles.Color.FromArgb(255, 0xD0, 0x44, 0x36),
-        _ => Mapsui.Styles.Color.FromArgb(255, 0x8A, 0x94, 0x90),
-    };
+        public static PinPalette For(ElementTheme theme)
+        {
+            Mapsui.Styles.Color Get(string key)
+            {
+                var c = ThemeColors.Get(key, theme);
+                return Mapsui.Styles.Color.FromArgb(c.A, c.R, c.G, c.B);
+            }
+
+            return new PinPalette(
+                [
+                    new(Get("GradeUnsurveyedColor")),
+                    new(Get("Grade1InvariantColor")),
+                    new(Get("Grade2InvariantColor")),
+                    new(Get("Grade3InvariantColor")),
+                    new(Get("Grade4InvariantColor")),
+                ],
+                new Pen(Get("MapPinRingColor"), 2),
+                new Pen(Get("MapPinSelectedRingColor"), 3));
+        }
+
+        public Mapsui.Styles.Brush Fill(ConditionGrade grade) => Fills[Math.Clamp((int)grade, 0, Fills.Length - 1)];
+    }
 
     private void OnInfo(object? sender, MapInfoEventArgs e)
     {

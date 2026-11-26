@@ -38,8 +38,8 @@
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*" MaxWidth="{StaticResource ContentMaxWidth}" />
         </Grid.ColumnDefinitions>
-          <StackPanel Spacing="32" Padding="24,28,24,40" controls:Entrance.IsEnabled="True">
-          <StackPanel Spacing="4">
+          <StackPanel Spacing="{StaticResource Spacing2xl}" Padding="24,28,24,40" controls:Entrance.IsEnabled="True">
+          <StackPanel Spacing="{StaticResource SpacingXs}">
             <TextBlock x:Uid="Settings_Eyebrow" Text="Settings" Style="{StaticResource EyebrowTextStyle}" />
             <!-- Anchor: who is recording -->
             <TextBlock x:Uid="Settings_SurveyorHeading" Text="Who is surveying?" Style="{StaticResource DisplaySmall}"
@@ -50,13 +50,13 @@
                      Text="{Binding Surveyor, Mode=TwoWay}" AutomationProperties.AutomationId="SettingsSurveyor" />
           </StackPanel>
 
-          <StackPanel Spacing="12">
+          <StackPanel Spacing="{StaticResource SpacingMd}">
             <TextBlock x:Uid="Settings_AppearanceHeading" Text="Appearance" Style="{StaticResource SectionTitleTextStyle}" />
             <RadioButtons x:Uid="Settings_Theme" Header="Theme"
                           ItemsSource="{Binding ThemeOptions}"
                           SelectedIndex="{Binding ThemeIndex, Mode=TwoWay}"
                           MaxColumns="3" AutomationProperties.AutomationId="ThemeChoice" />
-            <Grid ColumnSpacing="16">
+            <Grid ColumnSpacing="{StaticResource SpacingLg}">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
@@ -73,7 +73,7 @@
             </Grid>
           </StackPanel>
 
-          <StackPanel Spacing="12">
+          <StackPanel Spacing="{StaticResource SpacingMd}">
             <TextBlock x:Uid="Settings_LanguageHeading" Text="Language" Style="{StaticResource SectionTitleTextStyle}" />
             <RadioButtons ItemsSource="{Binding LanguageOptions}"
                           SelectedIndex="{Binding LanguageIndex, Mode=TwoWay}"
@@ -81,12 +81,12 @@
                           AutomationProperties.AutomationId="LanguageChoice" />
           </StackPanel>
 
-          <StackPanel Spacing="12">
+          <StackPanel Spacing="{StaticResource SpacingMd}">
             <TextBlock x:Uid="Settings_DataHeading" Text="Collection data" Style="{StaticResource SectionTitleTextStyle}" />
             <TextBlock x:Uid="Settings_DataBody"
                        Text="The collection lives on this device. Export it to a .patina file to back it up or move it to another device; importing replaces everything here."
                        Style="{StaticResource MutedBodyTextStyle}" />
-            <StackPanel x:Name="DataActions" Orientation="Vertical" Spacing="12">
+            <StackPanel x:Name="DataActions" Orientation="Vertical" Spacing="{StaticResource SpacingMd}">
               <Button x:Name="ExportButton" x:Uid="Settings_Export" Content="Export collection" Command="{Binding Export}"
                       Style="{StaticResource FilledTonalButtonStyle}" AutomationProperties.AutomationId="Export"
                       HorizontalAlignment="Stretch" />
@@ -104,7 +104,7 @@
 
           <StackPanel Spacing="6">
             <TextBlock x:Uid="Settings_AboutHeading" Text="About" Style="{StaticResource SectionTitleTextStyle}" />
-            <StackPanel Orientation="Horizontal" Spacing="8">
+            <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpacingSm}">
               <TextBlock Text="Patina" Style="{StaticResource TitleSmall}" />
               <TextBlock Text="{Binding Version}" Style="{StaticResource MonoTextStyle}" VerticalAlignment="Center" />
             </StackPanel>

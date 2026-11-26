@@ -54,7 +54,7 @@
         <utu:TabBar.ItemsPanel>
           <ItemsPanelTemplate>
             <!-- The vertical style spreads items over the full height; stack them under the wordmark instead -->
-            <StackPanel Orientation="Vertical" Spacing="8" Margin="0,72,0,0" />
+            <StackPanel Orientation="Vertical" Spacing="{StaticResource SpacingSm}" Margin="0,72,0,0" />
           </ItemsPanelTemplate>
         </utu:TabBar.ItemsPanel>
         <utu:TabBarItem x:Uid="Nav_Collection" uen:Region.Name="Collection" Content="Collection"

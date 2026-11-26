@@ -1,0 +1,15 @@
+<hd:Preview x:Class="Patina.HotDesignPreviews.ConditionStripGradesPreview"
+            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            xmlns:controls="using:Patina.Controls"
+            xmlns:hd="using:Uno.UI.HotDesign">
+  <StackPanel Spacing="{StaticResource SpacingLg}" Padding="{StaticResource SpacingXlThickness}"
+              Background="{ThemeResource BackgroundBrush}">
+    <controls:ConditionStrip Grade="Unsurveyed" />
+    <controls:ConditionStrip Grade="Good" />
+    <controls:ConditionStrip Grade="Fair" />
+    <controls:ConditionStrip Grade="Poor" />
+    <controls:ConditionStrip Grade="Critical" />
+    <controls:ConditionStrip Grade="Poor" Style="{StaticResource LargeConditionStripStyle}" />
+  </StackPanel>
+</hd:Preview>
