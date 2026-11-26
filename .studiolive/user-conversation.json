@@ -1,0 +1,18 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "Build a field app for a city's public-art conservation team on Uno Platform:\n- a Collection screen that ranks every artwork by urgency, with search, filter chips (all, needs attention, overdue, never surveyed) and a map of the city with pins coloured by condition;\n- an Artwork screen with a museum-style object label, the record photograph, the condition grade, the next survey date and why, open treatments and the survey history;\n- a condition Survey: findings with type, zone, severity and photos, a live grade, a draft saved at every change, and submit;\n- grading rules: the worst finding sets the grade (three moderate findings count as Poor), survey intervals depend on the material and shorten with condition, and submitting proposes one treatment per serious or urgent finding;\n- a Treatments queue (late work first) and a Treatment screen to schedule, assign, log and step through Proposed, Scheduled, In progress and Done;\n- Settings for the surveyor's name, theme, reduced motion, English or French, and export, import and restore of the sample collection;\n- everything stored on the device, a rail on wide windows and a tab bar on phones.\n\nStack: Uno Platform single project, MVUX, Navigation Extensions, Toolkit, Material, Mapsui for the map; the rules in a tested .NET library; desktop, WebAssembly, Android and iOS."
+    },
+    {
+      "role": "assistant",
+      "content": "Patina is built and running: the sample collection of 18 works is ranked by urgency, and surveys, treatments and settings all work on the device."
+    }
+  ],
+  "suggestedPrompts": [
+    "Add a Glass material with its own finding types and survey interval",
+    "Show the number of open treatments as a badge on the Treatments tab",
+    "Add a filter chip for works with an urgent treatment",
+    "Sort the treatment queue by assignee"
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "$schema": "https://schemas.platform.uno/sample/v1",
+  "id": "patina",
+  "displayName": "Patina",
+  "description": "Patina is a field app for a city's public-art conservation team. Conservators browse a collection of outdoor artworks ranked by urgency, with search, filter chips and a map of condition-coloured pins; open an artwork's record (object label, condition grade, next survey date and why, open treatments, survey history); record a condition survey with findings, severities and photos that saves as a draft at every change and grades the work live; and move each proposed treatment through scheduled, in progress and done. The rules, queries and a versioned JSON store live in a tested Patina.Core library; the data stays on the device, and a .patina archive exports and imports a collection. English and French, Light and Dark. It uses MVUX, Navigation Extensions, the Toolkit, Material and Mapsui.",
+  "platforms": [
+    "desktop",
+    "wasm",
+    "android",
+    "ios"
+  ],
+  "sourcePath": "Patina/Patina.csproj",
+  "iconUrl": "https://raw.githubusercontent.com/noknowscode/patina/studio/.studiolive/icon.png",
+  "screenshots": [
+    "https://raw.githubusercontent.com/noknowscode/patina/studio/.studiolive/screenshots/collection-desktop.png",
+    "https://raw.githubusercontent.com/noknowscode/patina/studio/.studiolive/screenshots/artwork-desktop.png",
+    "https://raw.githubusercontent.com/noknowscode/patina/studio/.studiolive/screenshots/treatments-desktop.png",
+    "https://raw.githubusercontent.com/noknowscode/patina/studio/.studiolive/screenshots/treatment-desktop.png"
+  ],
+  "showcase": {
+    "summary": "A field app for public-art conservators: a graded collection with a map, condition surveys with photos, and a treatment queue.",
+    "type": "showcase",
+    "status": "preview",
+    "owner": [
+      "noknowscode"
+    ],
+    "industry": "Public art and cultural heritage conservation",
+    "goals": [
+      "MVUX feeds over one watched document store, so every page refreshes after any change",
+      "Region navigation with a rail on wide windows and a tab bar on phones, plus data routes for detail pages",
+      "A survey form that saves a draft at every change and grades the work live",
+      "Domain rules, queries and a versioned JSON store in a plain .NET library with unit tests",
+      "A Mapsui map with condition-coloured pins and tiles tinted to the theme",
+      "English and French, Light and Dark, from a palette and type ramp generated from one design file"
+    ],
+    "tags": [
+      "mvux",
+      "navigation",
+      "toolkit",
+      "material",
+      "localization",
+      "maps",
+      "forms",
+      "offline"
+    ]
+  }
+}

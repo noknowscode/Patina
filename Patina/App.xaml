@@ -1,0 +1,26 @@
+<Application x:Class="Patina.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+        <!-- Palette, type ramp and tokens are generated from docs/DESIGN.md by DesignMd2Uno. Regenerate; do not hand-edit. -->
+        <utum:MaterialToolkitTheme xmlns:utum="using:Uno.Toolkit.UI.Material"
+                                   FontOverrideSource="ms-appx:///Styles/MaterialFontsOverride.xaml">
+          <utum:MaterialToolkitTheme.Colors>
+            <ut:ThemeColors xmlns:ut="using:Uno.Themes" OverrideSource="ms-appx:///Styles/ColorPaletteOverride.xaml" />
+          </utum:MaterialToolkitTheme.Colors>
+        </utum:MaterialToolkitTheme>
+        <!-- After the theme, so these keys win -->
+        <ResourceDictionary Source="ms-appx:///Styles/Typography.xaml" />
+        <ResourceDictionary Source="ms-appx:///Styles/Tokens.xaml" />
+        <ResourceDictionary Source="ms-appx:///Styles/Motion.xaml" />
+        <ResourceDictionary Source="ms-appx:///Styles/Condition.xaml" />
+        <ResourceDictionary Source="ms-appx:///Styles/Patina.xaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
+
+</Application>

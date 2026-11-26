@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="456" height="456" viewBox="0 0 456 456">
+  <!-- The condition strip: four patches weathering from limestone toward the verdigris ground. Kept inside the
+       adaptive-icon safe zone (centre 66%). -->
+  <rect x="110" y="168" width="52" height="120" rx="8" fill="#EEF0EC" />
+  <rect x="172" y="168" width="52" height="120" rx="8" fill="#EEF0EC" fill-opacity="0.8" />
+  <rect x="234" y="168" width="52" height="120" rx="8" fill="#EEF0EC" fill-opacity="0.58" />
+  <rect x="296" y="168" width="52" height="120" rx="8" fill="#EEF0EC" fill-opacity="0.36" />
+</svg>
