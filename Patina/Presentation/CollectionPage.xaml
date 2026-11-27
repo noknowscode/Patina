@@ -146,7 +146,7 @@
                          Style="{StaticResource FilterChipGroupStyle}">
             <utu:ChipGroup.ItemTemplate>
               <DataTemplate>
-                <TextBlock Text="{Binding Label}" />
+                <TextBlock Text="{Binding Converter={StaticResource EnumText}}" />
               </DataTemplate>
             </utu:ChipGroup.ItemTemplate>
           </utu:ChipGroup>

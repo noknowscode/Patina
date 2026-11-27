@@ -1,6 +1,8 @@
 using Patina.Core;
 using Patina.Core.Model;
+using System.Globalization;
 using Patina.Core.Queries;
+using Patina.Core.Rules;
 using Patina.Core.Storage;
 using Patina.Services;
 
@@ -56,6 +58,26 @@ internal sealed class PreviewPhotoService : IPhotoService
     public Task<PhotoRef?> PickAsync(CancellationToken ct) => Task.FromResult<PhotoRef?>(null);
 
     public Task<PhotoRef?> CaptureAsync(CancellationToken ct) => Task.FromResult<PhotoRef?>(null);
+}
+
+/// <summary>English only; switching language in a preview changes nothing.</summary>
+internal sealed class PreviewLocalization : ILocalizationService
+{
+    public CultureInfo[] SupportedCultures { get; } = [new("en"), new("fr")];
+
+    public CultureInfo CurrentCulture => SupportedCultures[0];
+
+    public Task SetCurrentCultureAsync(CultureInfo newCulture) => Task.CompletedTask;
+}
+
+/// <summary>No pickers in a preview: export and import are cancelled.</summary>
+internal sealed class PreviewTransfer : IDataTransferService
+{
+    public Task<TransferOutcome> ExportAsync(PatinaDocument doc, CancellationToken ct) => Task.FromResult(TransferOutcome.Cancelled);
+
+    public Task<Result<ImportPreview>?> PickImportAsync(CancellationToken ct) => Task.FromResult<Result<ImportPreview>?>(null);
+
+    public Task RestorePhotosAsync(ImportPreview preview, CancellationToken ct) => Task.CompletedTask;
 }
 
 /// <summary>Navigation in a preview goes nowhere: the page is not hosted in a region.</summary>

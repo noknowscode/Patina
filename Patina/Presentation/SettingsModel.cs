@@ -3,23 +3,18 @@ using System.Reflection;
 using Patina.Core.Rules;
 using Patina.Core.Storage;
 using Patina.Services;
-using Uno.Extensions.Toolkit;
 
 namespace Patina.Presentation;
 
-/// <summary>Surveyor name, appearance, language, and moving the collection between devices.</summary>
+/// <summary>Surveyor name, reduced motion, language, and moving the collection between devices. The theme follows the system.</summary>
 public partial record SettingsModel(
     IAppSettings Settings,
-    IThemeService Theme,
     ILocalizationService Localization,
     PatinaStore Store,
     IDataTransferService Transfer,
     INavigator Navigator)
 {
     private static readonly string[] Cultures = ["en", "fr"];
-
-    public IImmutableList<string> ThemeOptions { get; } =
-        ImmutableList.Create(Text.Get("Settings_ThemeSystem"), Text.Get("Settings_ThemeLight"), Text.Get("Settings_ThemeDark"));
 
     public IImmutableList<string> LanguageOptions { get; } = ImmutableList.Create("English", "Français");
 
@@ -31,13 +26,6 @@ public partial record SettingsModel(
     public IState<string> Surveyor => State.Value(this, () => Settings.Surveyor).ForEach(SaveSurveyor);
 
     public IState<bool> ReduceMotion => State.Value(this, () => Settings.ReduceMotion).ForEach(SaveReduceMotion);
-
-    public IState<int> ThemeIndex => State.Value(this, () => Theme.Theme switch
-    {
-        AppTheme.Light => 1,
-        AppTheme.Dark => 2,
-        _ => 0,
-    }).ForEach(ApplyTheme);
 
     public IState<int> LanguageIndex => State.Value(this, () =>
         Localization.CurrentCulture.TwoLetterISOLanguageName == "fr" ? 1 : 0).ForEach(ApplyLanguage);
@@ -126,14 +114,6 @@ public partial record SettingsModel(
         Settings.ReduceMotion = value;
         return ValueTask.CompletedTask;
     }
-
-    private async ValueTask ApplyTheme(int index, CancellationToken ct) =>
-        await Theme.SetThemeAsync(index switch
-        {
-            1 => AppTheme.Light,
-            2 => AppTheme.Dark,
-            _ => AppTheme.System,
-        });
 
     private async ValueTask ApplyLanguage(int index, CancellationToken ct)
     {

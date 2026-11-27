@@ -147,10 +147,6 @@
   <data name="Settings_Surveyor.Header" xml:space="preserve"><value>Nom</value></data>
   <data name="Settings_SurveyorBody.Text" xml:space="preserve"><value>Votre nom figure sur chaque inspection et chaque entrée de journal faites sur cet appareil.</value></data>
   <data name="Settings_SurveyorHeading.Text" xml:space="preserve"><value>Qui inspecte?</value></data>
-  <data name="Settings_Theme.Header" xml:space="preserve"><value>Thème</value></data>
-  <data name="Settings_ThemeDark" xml:space="preserve"><value>Sombre</value></data>
-  <data name="Settings_ThemeLight" xml:space="preserve"><value>Clair</value></data>
-  <data name="Settings_ThemeSystem" xml:space="preserve"><value>Système</value></data>
   <data name="Severity_Minor" xml:space="preserve"><value>Mineur</value></data>
   <data name="Severity_Moderate" xml:space="preserve"><value>Modéré</value></data>
   <data name="Severity_Serious" xml:space="preserve"><value>Sérieux</value></data>
@@ -215,8 +211,8 @@
   <data name="Treatment_GoneBody.Text" xml:space="preserve"><value>Il a peut-être été retiré par une importation. Retournez à la file.</value></data>
   <data name="Treatment_GoneTitle.Text" xml:space="preserve"><value>Ce traitement n'est plus dans la file</value></data>
   <data name="Treatment_LogHeading.Text" xml:space="preserve"><value>Journal</value></data>
-  <data name="Treatment_Note.Header" xml:space="preserve"><value>Ajouter au journal</value></data>
   <data name="Treatment_Note.PlaceholderText" xml:space="preserve"><value>Ce qui a été fait, ce qui a été constaté. Requis pour marquer le travail comme terminé.</value></data>
+  <data name="Treatment_NoteLabel.Text" xml:space="preserve"><value>Ajouter au journal</value></data>
   <data name="Treatment_Origin.Text" xml:space="preserve"><value>Issu de l'inspection du</value></data>
   <data name="Treatment_Save.Content" xml:space="preserve"><value>Enregistrer</value></data>
   <data name="Treatment_Saved" xml:space="preserve"><value>Enregistré.</value></data>

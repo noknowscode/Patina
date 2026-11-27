@@ -9,7 +9,8 @@ public partial record MapModel(PatinaStore Store)
 {
     public IState<string> SelectedId => State<string>.Empty(this);
 
-    private IFeed<PatinaDocument> Document => Feed.AsyncEnumerable(Store.Watch);
+    /// <summary>One instance per model, so a Retry on any FeedView reloads the source every feed here shares.</summary>
+    private IFeed<PatinaDocument> Document { get; } = StoreFeed.Document(Store);
 
     private IFeed<CollectionView> View =>
         Document.Select(doc => PatinaQueries.Collection(doc, Store.Clock.Today, null, CollectionFilter.All));

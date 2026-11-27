@@ -52,10 +52,6 @@
 
           <StackPanel Spacing="{StaticResource SpacingMd}">
             <TextBlock x:Uid="Settings_AppearanceHeading" Text="Appearance" Style="{StaticResource SectionTitleTextStyle}" />
-            <RadioButtons x:Uid="Settings_Theme" Header="Theme"
-                          ItemsSource="{Binding ThemeOptions}"
-                          SelectedIndex="{Binding ThemeIndex, Mode=TwoWay}"
-                          MaxColumns="3" AutomationProperties.AutomationId="ThemeChoice" />
             <Grid ColumnSpacing="{StaticResource SpacingLg}">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />

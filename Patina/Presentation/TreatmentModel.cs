@@ -15,7 +15,8 @@ public sealed record StepView(int Number, string Label, bool IsDone, bool IsCurr
 /// <summary>One treatment: where it came from, its schedule and assignee, its log, and moving it forward.</summary>
 public partial record TreatmentModel(TreatmentSummary Summary, PatinaStore Store, IAppSettings Settings, INavigator Navigator)
 {
-    private IFeed<PatinaDocument> Document => Feed.AsyncEnumerable(Store.Watch);
+    /// <summary>One instance per model, so a Retry on any FeedView reloads the source every feed here shares.</summary>
+    private IFeed<PatinaDocument> Document { get; } = StoreFeed.Document(Store);
 
     public IFeed<TreatmentDetail> Detail => Document.Select(doc => PatinaQueries.Treatment(doc, Summary.Id, Store.Clock.Today)!);
 
@@ -59,8 +60,21 @@ public partial record TreatmentModel(TreatmentSummary Summary, PatinaStore Store
         await AfterWrite(problem, string.Empty, ct);
     }
 
-    public async ValueTask OpenArtwork(TreatmentDetail detail, CancellationToken ct) =>
+    /// <summary>
+    /// Opens the treatment's artwork. A treatment opened from its artwork's record (the only artwork whose record lists
+    /// it) has that record as the previous page, so this goes back to it: a forward navigation to the route that is
+    /// already the previous page left the frame on a Treatment page without its data.
+    /// </summary>
+    public async ValueTask OpenArtwork(TreatmentDetail detail, CancellationToken ct)
+    {
+        if (Navigator is FrameNavigator { Control.BackStack: [.., var previous] } && previous.SourcePageType == typeof(ArtworkPage))
+        {
+            await Navigator.NavigateBackAsync(this, cancellation: ct);
+            return;
+        }
+
         await Navigator.NavigateDataAsync(this, detail.ArtworkSummary, cancellation: ct);
+    }
 
     private string Author => Settings.Surveyor is { Length: > 0 } name ? name : Text.Get("Common_UnnamedSurveyor");
 

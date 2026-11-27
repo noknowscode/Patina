@@ -147,10 +147,6 @@
   <data name="Settings_Surveyor.Header" xml:space="preserve"><value>Name</value></data>
   <data name="Settings_SurveyorBody.Text" xml:space="preserve"><value>Your name is stamped on every survey and log entry you make on this device.</value></data>
   <data name="Settings_SurveyorHeading.Text" xml:space="preserve"><value>Who is surveying?</value></data>
-  <data name="Settings_Theme.Header" xml:space="preserve"><value>Theme</value></data>
-  <data name="Settings_ThemeDark" xml:space="preserve"><value>Dark</value></data>
-  <data name="Settings_ThemeLight" xml:space="preserve"><value>Light</value></data>
-  <data name="Settings_ThemeSystem" xml:space="preserve"><value>System</value></data>
   <data name="Severity_Minor" xml:space="preserve"><value>Minor</value></data>
   <data name="Severity_Moderate" xml:space="preserve"><value>Moderate</value></data>
   <data name="Severity_Serious" xml:space="preserve"><value>Serious</value></data>
@@ -215,8 +211,8 @@
   <data name="Treatment_GoneBody.Text" xml:space="preserve"><value>It may have been removed by an import. Go back to the queue.</value></data>
   <data name="Treatment_GoneTitle.Text" xml:space="preserve"><value>This treatment is no longer in the queue</value></data>
   <data name="Treatment_LogHeading.Text" xml:space="preserve"><value>Log</value></data>
-  <data name="Treatment_Note.Header" xml:space="preserve"><value>Add to the log</value></data>
   <data name="Treatment_Note.PlaceholderText" xml:space="preserve"><value>What was done, what was found. Required to mark the work done.</value></data>
+  <data name="Treatment_NoteLabel.Text" xml:space="preserve"><value>Add to the log</value></data>
   <data name="Treatment_Origin.Text" xml:space="preserve"><value>From the survey of</value></data>
   <data name="Treatment_Save.Content" xml:space="preserve"><value>Save</value></data>
   <data name="Treatment_Saved" xml:space="preserve"><value>Saved.</value></data>

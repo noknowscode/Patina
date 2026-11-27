@@ -4,24 +4,23 @@ using Patina.Core.Storage;
 
 namespace Patina.Presentation;
 
-public sealed record QueueFilterOption(QueueFilter Value, string Label);
-
 /// <summary>The treatment queue: late work first, then urgent, then by date.</summary>
 public partial record QueueModel(PatinaStore Store)
 {
-    public IImmutableList<QueueFilterOption> Filters { get; } =
-        Enum.GetValues<QueueFilter>().Select(f => new QueueFilterOption(f, Services.Text.Enum(f))).ToImmutableList();
+    /// <summary>The filter chips as plain enum values (see <see cref="CollectionModel.Filters"/>).</summary>
+    public IImmutableList<QueueFilter> Filters { get; } = Enum.GetValues<QueueFilter>().ToImmutableList();
 
-    public IState<QueueFilterOption> Filter => State.Value(this, () => Filters[0]);
+    public IState<QueueFilter> Filter => State.Value(this, () => QueueFilter.Open);
 
-    private IFeed<PatinaDocument> Document => Feed.AsyncEnumerable(Store.Watch);
+    /// <summary>One instance per model, so a Retry on any FeedView reloads the source every feed here shares.</summary>
+    private IFeed<PatinaDocument> Document { get; } = StoreFeed.Document(Store);
 
     public IListFeed<TreatmentSummary> Treatments =>
         Feed.Combine(Document, Filter)
-            .Select(x => PatinaQueries.Queue(x.Item1, Store.Clock.Today, x.Item2.Value))
+            .Select(x => PatinaQueries.Queue(x.Item1, Store.Clock.Today, x.Item2))
             .AsListFeed();
 
     public IFeed<QueueStats> Stats => Document.Select(doc => PatinaQueries.QueueStatistics(doc, Store.Clock.Today));
 
-    public async ValueTask ShowOpen(CancellationToken ct) => await Filter.UpdateAsync(_ => Filters[0], ct);
+    public async ValueTask ShowOpen(CancellationToken ct) => await Filter.UpdateAsync(_ => QueueFilter.Open, ct);
 }

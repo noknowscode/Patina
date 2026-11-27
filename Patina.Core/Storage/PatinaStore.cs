@@ -34,6 +34,9 @@ public sealed class PatinaStore(IDocumentFile file, IClock clock)
 
     public IClock Clock => clock;
 
+    /// <summary>Raised after every committed change, once the new document is current.</summary>
+    public event Action? Changed;
+
     public async Task<PatinaDocument> GetAsync(CancellationToken ct = default)
     {
         if (_current is { } loaded)
@@ -157,7 +160,10 @@ public sealed class PatinaStore(IDocumentFile file, IClock clock)
     public Task<Problem> ResetToSampleAsync(CancellationToken ct = default) =>
         UpdateAsync(_ => Result<PatinaDocument>.Ok(SampleCollection.Create(clock.Today)), ct);
 
-    /// <summary>Forgets the cached document so the next read goes back to the file (used by Retry after a load error).</summary>
+    /// <summary>
+    /// Forgets the cached document so the next read goes back to the file. Retry after a load error does not need it:
+    /// a failed load caches nothing, so the next <see cref="Watch"/> or <see cref="GetAsync"/> reads the file again.
+    /// </summary>
     public void Invalidate() => _current = null;
 
     private void Broadcast(PatinaDocument doc)
@@ -169,5 +175,7 @@ public sealed class PatinaStore(IDocumentFile file, IClock clock)
                 subscriber.Writer.TryWrite(doc);
             }
         }
+
+        Changed?.Invoke();
     }
 }

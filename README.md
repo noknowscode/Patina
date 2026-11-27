@@ -24,7 +24,7 @@ The sample collection is fictional: invented works and artists placed at real Mo
 | Survey | Findings (type, zone, severity, photos), live grade, autosaved draft, submit |
 | Treatments | Queue of proposed / scheduled / in-progress work, late work first |
 | Treatment | Schedule, assign, log, step through to done (a completion note is required) |
-| Settings | Surveyor name, theme, reduced motion, language, export / import / restore sample data |
+| Settings | Surveyor name, reduced motion, language, export / import / restore sample data |
 
 | Artwork record (Light) | Treatment queue (Dark) |
 |---|---|
@@ -103,7 +103,7 @@ any key used in code or XAML that has no translation.
 - **Theme:** `App.xaml` merges `MaterialToolkitTheme` with `ThemeColors OverrideSource="Styles/ColorPaletteOverride.xaml"`:
   the Material roles carry the Patina brand in Light and Dark (verdigris `#2F6F62` primary, bronze secondary, slate
   tertiary, limestone `#EEF0EC` background, paper surface; Dark is "the same collection at night"), so Studio's
-  Themes tab rebrands the whole app. The app follows the system theme; Settings > Theme can pin Light or Dark.
+  Themes tab rebrands the whole app. The app follows the system theme (no in-app theme picker).
 - **Tokens:** palette, type ramp (IBM Plex Sans, Sans Condensed, Mono on the Material style keys) and spacing/radius
   (`SpacingXs`…`Spacing3xl`, `RadiusSm`…`RadiusFull`) are generated from `docs/DESIGN.md` (see below). App-specific
   keys live in `Styles/Condition.xaml` (grade ramp and map pin colours, `Light`/`Dark`/`Default` theme dictionaries)
@@ -113,15 +113,20 @@ any key used in code or XAML that has no translation.
 - **Responsive:** rail at 800 px and up, bottom tab bar below; the collection map pane joins the list at 1080 px and
   opens as its own page below that. Detail pages use `{utu:Responsive}`; the three cached pages use `AdaptiveTrigger`
   (Toolkit ResponsiveExtension bug, `docs/KNOWN-ISSUES.md`). Usable from 360 to 1920 px.
-- **States:** every feed is shown in an `mvux:FeedView` with progress (also used as the undefined state, since the
-  store's `Watch` feed shows nothing until its first document), empty (with the action that fills it) and error
-  (message and Try again bound to the FeedView's `Refresh`) templates.
+- **States:** every feed is shown in an `mvux:FeedView` with progress (also used as the undefined state), empty (with
+  the action that fills it) and error (message and Try again bound to the FeedView's `Refresh`) templates. Pages read
+  the document through `Presentation/StoreFeed.cs`: a `Feed.Async` over the store, refreshed by a signal on every
+  committed change, so Try again really reloads after a failed read (a feed over `PatinaStore.Watch` ignored it).
+- **Every control does something real:** search, filter chips, list rows, map pins and callout, tabs, survey and
+  treatment fields and buttons, and Settings all change persisted state, navigate, or open a platform picker/dialog
+  (photo, export, import). Each was clicked through on desktop (2026-11-27); the pickers need the platform's file
+  dialog (on Linux, an xdg-desktop-portal), and "Take photo" shows only where a camera capture UI exists (Android, iOS).
 - **Hot Design previews:** `Patina/HotDesignPreviews/` (Debug only; absent from Release). `PreviewStore.cs` runs the
   real `PatinaStore` over a `PreviewDocumentFile` whose read stays pending (Loading), returns an empty collection
   (Empty), fails (Error) or seeds the sample collection in memory (Data); `PreviewNavigator`, `PreviewAppSettings`
-  and `PreviewPhotoService` fill the other constructor arguments. Previews: Collection, Treatments queue, Map,
-  Artwork and Treatment (Data, Loading, Empty, Error), Survey (Data, Loading, Error), plus the condition strip
-  (every grade) and the object label.
+  `PreviewPhotoService`, `PreviewLocalization` and `PreviewTransfer` fill the other constructor arguments. Previews:
+  Collection, Treatments queue, Map, Artwork and Treatment (Data, Loading, Empty, Error), Survey (Data, Loading,
+  Error), Settings (Data), plus the condition strip (every grade) and the object label.
 
 ## Data
 

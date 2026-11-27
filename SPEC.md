@@ -13,12 +13,12 @@ become proposed treatments → queue → schedule → in progress → done (with
 ## Architecture Brief
 
 - **Targets:** `net10.0-desktop` (Windows/macOS/Linux, Skia), `net10.0-browserwasm` (PWA), `net10.0-android`, `net10.0-ios`. Uno.Sdk **6.7.30** pinned in `global.json`.
-- **UnoFeatures:** `Material; Toolkit; Hosting; Navigation; MVUX; Localization; Logging; Configuration; ThemeService; SkiaRenderer; Skia`.
+- **UnoFeatures:** `Material; Toolkit; Hosting; Navigation; MVUX; Localization; Logging; Configuration; SkiaRenderer; Skia` (ThemeService removed 2026-11-26: the app follows the system theme).
 - **Pattern:** MVUX. Decision: MVUX for every page. Reason: async store-backed feeds, built-in Progress/None/Error states, generated commands (`uno-scaffolding.md`). Tradeoff: `{Binding}` only against generated view models; editable fields bind top-level states, never `Data.X` TwoWay inside a FeedView (runtime gotcha).
 - **Projects:** `Patina.Core` (net10.0: records, rules, queries, `PatinaStore`, JSON source-gen context), `Patina` (Uno app), `Patina.Tests` (NUnit over Core, template default).
 - **Shell:** `Shell.xaml` hosts `ExtendedSplashScreen` only. `MainPage` owns `Region.Attached` root, a Visibility region (route-based, empty), a vertical rail `utu:TabBar` (≥ Wide) and a bottom `utu:TabBar` (< Wide), sharing `Region.Name`s.
 - **Routes:** see Route tree. Detail pages are siblings of `Main` under the shell (Chefs pattern) and stack on the shell's frame.
-- **DI (`IHostBuilder`):** `IDocumentFile` → `LocalFolderDocumentFile` (singleton), `PatinaStore` (singleton), `IPhotoService` → `PhotoService` (singleton, needs `Window`), `IDataTransfer` → `DataTransferService` (export/import pickers), `IAppSettings` → `AppSettings` (`ApplicationData.LocalSettings`), `IClock` → `SystemClock`, `IThemeService`, `ILocalizationService`.
+- **DI (`IHostBuilder`):** `IDocumentFile` → `LocalFolderDocumentFile` (singleton), `PatinaStore` (singleton), `IPhotoService` → `PhotoService` (singleton, needs `Window`), `IDataTransfer` → `DataTransferService` (export/import pickers), `IAppSettings` → `AppSettings` (`ApplicationData.LocalSettings`), `IClock` → `SystemClock`, `ILocalizationService`.
 - **Models:** `ShellModel`, `MainModel`, `CollectionModel`, `ArtworkModel(ArtworkSummary)`, `SurveyModel(SurveyStart)`, `QueueModel`, `TreatmentModel(TreatmentSummary)`, `SettingsModel`. Change propagation: `PatinaStore.Watch()` (`IAsyncEnumerable<PatinaDocument>`, current value then each commit) projected with `Feed.AsyncEnumerable`; never awaited inside a model (gotcha G30).
 - **Persistence:** one JSON document `patina.json` (schema `Version`), atomic write (temp file then replace) through `StorageFile` APIs in `LocalFolder`; photos in `LocalFolder/photos/<id>.<ext>`. First run seeds from embedded `seed.json` (fictional collection, real Montréal coordinates). Corrupt file → renamed `patina.corrupt-<ts>.json`, load error surfaced with Retry and Restore-sample actions.
 - **Rules (Core, pure, tested):**
@@ -39,7 +39,7 @@ become proposed treatments → queue → schedule → in progress → done (with
 | Local persistence, offline | implemented | JSON document + photo files in `LocalFolder` |
 | Multi-device sync, sign-in | omitted | export/import file instead (D3) |
 | Localization EN/FR | implemented | `Uno.Extensions.Localization`, `.resw`; switch applies on restart (docs) |
-| Light/dark theme | implemented | Material roles from DesignMd2Uno + `IThemeService` |
+| Light/dark theme | implemented | Material roles from DesignMd2Uno; follows the system theme (in-app picker removed 2026-11-26) |
 | Data export/import | implemented | `FileSavePicker` / `FileOpenPicker` |
 | Notifications for due surveys | omitted | due status shown in-app only |
 | Artwork photos in seed data | omitted | fictional collection; honest empty state |
@@ -115,11 +115,11 @@ SurveyPage
 └─ Save draft / Submit (validation message ← IState Problem)
 QueuePage:   urgent count (Display) · status chips ⇒ IState StatusFilter · TreatmentList ← FeedView
 TreatmentPage: header · status stepper ← Detail.Status · Date ⇒ IState Date · Assignee ⇒ IState Assignee · Note ⇒ IState Note · Advance/Back/Save commands · log ← Detail.Log
-SettingsPage: Surveyor ⇒ IState · Theme ⇒ IState · Language ⇒ IState · Export / Import / Reset commands · About
+SettingsPage: Surveyor ⇒ IState · Reduce motion ⇒ IState · Language ⇒ IState · Export / Import / Reset commands · About
 ```
 
 ```text
-PatinaStore (singleton) ──Watch()──► Feed.AsyncEnumerable
+PatinaStore (singleton) ──GetAsync + Changed signal──► StoreFeed.Document (Feed.Async, refreshable; was Watch/AsyncEnumerable until 2026-11-26)
   CollectionModel.Document ─ Combine(Query, Filter) ─► Artworks (IListFeed) , Stats
   ArtworkModel.Document ─ Select(Queries.Dossier(id)) ─► Dossier
   QueueModel.Document ─ Combine(StatusFilter) ─► Treatments (IListFeed), Stats
@@ -170,7 +170,7 @@ App.xaml @App
 5. Collection page (list, filters, search, stats) + map control. Verify desktop. Commit.
 6. Artwork page. Survey page (findings, photos, validation, submit). Verify flow 1. Commit.
 7. Queue + Treatment pages. Verify flow 2. Commit.
-8. Settings: theme, language, surveyor, export/import, reset, about. FR strings complete. Commit.
+8. Settings: language, surveyor, export/import, reset, about. FR strings complete. Commit.
 9. States pass (`uno-component-states`), polish pass, lint clean, responsive sweep 600/800/1080, dark mode.
 10. Heads: WASM publish + PWA manifest; Android build + emulator run; Linux desktop via WSL.
 11. Release: CI workflow, README (dev/build/test), DEPLOY.md per target, version 1.0.0.

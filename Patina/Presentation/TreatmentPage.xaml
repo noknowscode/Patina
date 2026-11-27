@@ -144,11 +144,16 @@
                                   AutomationProperties.AutomationId="ScheduledFor" />
               <TextBox x:Uid="Treatment_Assignee" Header="Assigned to" Text="{Binding Assignee, Mode=TwoWay}"
                        AutomationProperties.AutomationId="Assignee" />
-              <TextBox x:Uid="Treatment_Note" Header="Add to the log"
-                       PlaceholderText="What was done, what was found. Required to mark the work done."
-                       Text="{Binding Note, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                       AcceptsReturn="True" TextWrapping="Wrap" MinHeight="88"
-                       AutomationProperties.AutomationId="TreatmentNote" />
+              <!-- Label above, not Header: in a multi-line Material text box the floating header sits on the placeholder -->
+              <StackPanel Spacing="{StaticResource SpacingXs}">
+                <TextBlock x:Name="NoteLabel" x:Uid="Treatment_NoteLabel" Text="Add to the log" Style="{StaticResource LabelLarge}" />
+                <TextBox x:Uid="Treatment_Note"
+                         PlaceholderText="What was done, what was found. Required to mark the work done."
+                         Text="{Binding Note, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         AcceptsReturn="True" TextWrapping="Wrap" MinHeight="88"
+                         AutomationProperties.LabeledBy="{Binding ElementName=NoteLabel}"
+                         AutomationProperties.AutomationId="TreatmentNote" />
+              </StackPanel>
               <TextBlock Text="{Binding Message}" Style="{StaticResource BodyMedium}" TextWrapping="WrapWholeWords"
                          AutomationProperties.LiveSetting="Assertive" AutomationProperties.AutomationId="TreatmentMessage"
                          Visibility="{Binding Message, Converter={StaticResource VisibleWhen}, FallbackValue=Collapsed}" />

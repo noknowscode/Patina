@@ -9,7 +9,7 @@ export/import). Desktop, WebAssembly and Android are built, run and verified; Li
 iOS is CI-only. Release artifacts are in `_publish/release/` (git-ignored). Pushed to https://github.com/mtmattei/Patina (private); CI green on all jobs incl. the first iOS simulator build (run 37131898208).
 
 ## Last verified state
-- Build: desktop, browserwasm, android Debug + Release: 0 warnings, 0 errors (Uno0001 as error). iOS not built.
+- Build: desktop, browserwasm, android Debug + Release: 0 warnings, 0 errors. iOS not built. (Uno0001-as-error was dropped on 2026-11-26 for Studio alignment, d39872de; builds stay at 0 warnings.)
 - Tests: 69/69 NUnit pass (`Patina.Core`).
 - Runtime: Windows desktop (all flows, 420/1024/1440 px, dark, French, published Release exe); WASM in headless Edge (load 7.5 s, draft survives reload, `/Patina/` subpath); Android API 36 emulator (Debug: map, callout, survey, camera, Back; Release APK: launch, collection, map). App MCP not used (session not rooted in the repo); Win32 + Playwright harnesses in `tools/`.
 - Git: `main` pushed to origin (mtmattei/Patina, private). Tag `backup/before-untrack-publish` keeps pre-rewrite history (publish output was committed by mistake, then filtered out of 4 unpushed commits).
@@ -18,13 +18,13 @@ iOS is CI-only. Release artifacts are in `_publish/release/` (git-ignored). Push
 ## Guidance applied
 | Skill / rule / decision | Applied at (file:line) |
 |---|---|
-| mvux: AsyncEnumerable store feed | `Patina/Presentation/ArtworkModel.cs:13` |
+| mvux: refreshable store feed (Feed.Async + Signal on store changes) | `Patina/Presentation/StoreFeed.cs` |
 | mvux: Retry by ElementName in ErrorTemplate | `Patina/Presentation/ArtworkPage.xaml:186` |
 | uno-navigation: route-based Visibility region, DataViewMap | `Patina/Presentation/MainPage.xaml:97`, `Patina/App.xaml.cs:80` |
 | uno-toolkit: NavigationBar, FilterChipGroupStyle | `Patina/Presentation/ArtworkPage.xaml:41`, `CollectionPage.xaml:146` |
 | uno-material / art direction: invariant grade tokens, static card | `Patina/Styles/Condition.xaml:10`, `Patina/Styles/Patina.xaml:161` |
 | xaml-design-polish: house easing | `Patina/Styles/Motion.xaml:4` |
-| rules: Uno0001 as error, IDBFS, OSM User-Agent | `Patina/Patina.csproj:49`, `:59`, `Patina/Controls/ArtworkMap.cs:24` |
+| rules: IDBFS, OSM User-Agent | `Patina/Patina.csproj:55`, `Patina/Controls/ArtworkMap.cs:24` |
 | gotchas: DialogAction callbacks, FallbackValue=Collapsed | `Patina/Presentation/SettingsModel.cs:111`, `ArtworkPage.xaml:27` |
 | workaround protocol: AdaptiveTrigger on cached pages | `Patina/Presentation/CollectionPage.xaml:48` |
 

@@ -92,7 +92,7 @@ public-art conservation tool, the closest (FieldCheck) is a single-attachment be
 | MotionTokens | substituted | values conflict with `xaml-design-polish`; house values in `Styles/Motion.xaml` (D9) |
 | `uno-write-spec` | yes | `SPEC.md` |
 | Design Graph plugin | deferred | not installed; the spec's text design tree stands in |
-| `uno-scaffolding` + rules | yes | scaffold, Uno0001 gate (caught two unimplemented APIs), font naming, IDBFS |
+| `uno-scaffolding` + rules | yes | scaffold, Uno0001 gate (caught two unimplemented APIs; gate dropped 2026-11-26 for Studio alignment), font naming, IDBFS |
 | `mvux`, `uno-navigation`, `uno-toolkit`, `uno-material`, `uno-extensions-services`, `uno-wasm-pwa` | yes | build |
 | semantic lint | yes | PostToolUse hook on every XAML edit; deliberate exceptions carry `xaml-lint: allow` |
 | `uno-verify` | fallback mode | no App MCP in this session; Win32 capture/drive scripts (`tools/`) and Playwright for WASM |

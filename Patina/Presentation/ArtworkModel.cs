@@ -10,7 +10,8 @@ public sealed record SurveyStart(string ArtworkId);
 /// <summary>One artwork's record: the label, its condition, open work and survey history.</summary>
 public partial record ArtworkModel(ArtworkSummary Summary, PatinaStore Store, INavigator Navigator)
 {
-    private IFeed<PatinaDocument> Document => Feed.AsyncEnumerable(Store.Watch);
+    /// <summary>One instance per model, so a Retry on any FeedView reloads the source every feed here shares.</summary>
+    private IFeed<PatinaDocument> Document { get; } = StoreFeed.Document(Store);
 
     /// <summary>None when the artwork no longer exists (for example after an import replaced the collection).</summary>
     public IFeed<ArtworkDossier> Dossier => Document.Select(doc => PatinaQueries.Dossier(doc, Summary.Id, Store.Clock.Today)!);
