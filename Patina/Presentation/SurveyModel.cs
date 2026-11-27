@@ -45,47 +45,45 @@ public partial record SurveyModel(
 
     public bool CanCapture => Photos.CanCapture;
 
-    public IFeed<SurveyHeader> Header => Feed.Async(async ct =>
-    {
-        var doc = await Store.GetAsync(ct);
-        var artwork = doc.Artworks.First(a => a.Id == Start.ArtworkId);
-        return new SurveyHeader(artwork, SurveyOps.DraftFor(doc, Start.ArtworkId) is not null);
-    });
+    /// <summary>
+    /// One refreshable document per model (see <see cref="StoreFeed"/>). The header, finding types and the draft's
+    /// fields all follow it, so the header's Try again reloads the whole form after a failed read, and each saved
+    /// draft flows back into the fields it came from.
+    /// </summary>
+    private IFeed<PatinaDocument> Document { get; } = StoreFeed.Document(Store);
 
-    public IListFeed<FindingTypeOption> FindingTypes => Feed.Async(async ct =>
-    {
-        var doc = await Store.GetAsync(ct);
-        var material = doc.Artworks.First(a => a.Id == Start.ArtworkId).Material;
-        return ConditionRules.FindingTypesFor(material)
+    public IFeed<SurveyHeader> Header => Document.Select(doc =>
+        new SurveyHeader(doc.Artworks.First(a => a.Id == Start.ArtworkId), SurveyOps.DraftFor(doc, Start.ArtworkId) is not null));
+
+    public IListFeed<FindingTypeOption> FindingTypes => Document.Select(doc =>
+        (IImmutableList<FindingTypeOption>)ConditionRules.FindingTypesFor(doc.Artworks.First(a => a.Id == Start.ArtworkId).Material)
             .Select(t => new FindingTypeOption(t, Text.Enum(t)))
-            .ToImmutableList() as IImmutableList<FindingTypeOption>;
-    }).AsListFeed();
+            .ToImmutableList()).AsListFeed();
 
-    public IState<SurveyForm> Form => State.Async(this, async ct =>
+    public IState<SurveyForm> Form => State.FromFeed(this, Document.Select(doc =>
     {
-        var draft = await DraftAsync(ct);
+        var draft = SurveyOps.DraftFor(doc, Start.ArtworkId);
         var surveyor = draft?.Surveyor is { Length: > 0 } s ? s : Settings.Surveyor;
         var weather = Math.Max(0, WeatherOptions.ToList().FindIndex(o => o.Value == (draft?.Weather ?? Weather.Dry)));
         return new SurveyForm(surveyor, weather, draft?.Notes ?? string.Empty);
-    });
+    }));
 
-    public IListState<Finding> Findings => ListState.Async(this, async ct =>
-        (IImmutableList<Finding>)((await DraftAsync(ct))?.Findings ?? []));
+    public IListState<Finding> Findings => ListState.FromFeed(this, Document.Select(doc =>
+        (IImmutableList<Finding>)(SurveyOps.DraftFor(doc, Start.ArtworkId)?.Findings ?? [])).AsListFeed());
 
-    public IListState<PhotoRef> SurveyPhotos => ListState.Async(this, async ct =>
+    public IListState<PhotoRef> SurveyPhotos => ListState.FromFeed(this, Document.Select(doc =>
     {
-        var doc = await Store.GetAsync(ct);
-        var ids = (await DraftAsync(ct))?.PhotoIds ?? [];
+        var ids = SurveyOps.DraftFor(doc, Start.ArtworkId)?.PhotoIds ?? [];
         return (IImmutableList<PhotoRef>)doc.Photos.Where(p => ids.Contains(p.Id)).ToImmutableList();
-    });
+    }).AsListFeed());
 
     public IState<FindingForm> NewFinding => State.Value(this, () => FindingForm.Empty);
 
     public IListState<PhotoRef> FindingPhotos => ListState<PhotoRef>.Empty(this);
 
     /// <summary>The grade the survey will submit with, recomputed whenever findings change.</summary>
-    public IState<ConditionGrade> LiveGrade => State.Async(this, async ct =>
-        ConditionRules.Grade((await DraftAsync(ct))?.Findings ?? []));
+    public IState<ConditionGrade> LiveGrade => State.FromFeed(this, Document.Select(doc =>
+        ConditionRules.Grade(SurveyOps.DraftFor(doc, Start.ArtworkId)?.Findings ?? [])));
 
     /// <summary>The last validation or save message; empty when there is nothing to say.</summary>
     public IState<string> Message => State.Value(this, () => string.Empty);

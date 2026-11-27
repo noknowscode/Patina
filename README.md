@@ -116,7 +116,8 @@ any key used in code or XAML that has no translation.
 - **States:** every feed is shown in an `mvux:FeedView` with progress (also used as the undefined state), empty (with
   the action that fills it) and error (message and Try again bound to the FeedView's `Refresh`) templates. Pages read
   the document through `Presentation/StoreFeed.cs`: a `Feed.Async` over the store, refreshed by a signal on every
-  committed change, so Try again really reloads after a failed read (a feed over `PatinaStore.Watch` ignored it).
+  committed change, so Try again really reloads after a failed read (a feed over `PatinaStore.Watch` ignored it);
+  the treatment and survey form fields follow the same feed. Confirmation dialogs use the Material dialog style.
 - **Every control does something real:** search, filter chips, list rows, map pins and callout, tabs, survey and
   treatment fields and buttons, and Settings all change persisted state, navigate, or open a platform picker/dialog
   (photo, export, import). Each was clicked through on desktop (2026-11-27); the pickers need the platform's file

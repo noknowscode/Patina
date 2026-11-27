@@ -19,6 +19,10 @@ public partial record ArtworkModel(ArtworkSummary Summary, PatinaStore Store, IN
     /// <summary>Header shown before the dossier loads, from the navigation data.</summary>
     public string Title => Summary.Title;
 
+    /// <summary>A row of the open or completed treatments.</summary>
+    public async ValueTask OpenTreatment(TreatmentSummary treatment, CancellationToken ct) =>
+        await Navigator.OpenTreatmentAsync(this, treatment, ct);
+
     public async ValueTask StartSurvey(CancellationToken ct) =>
         await Navigator.NavigateDataAsync(this, new SurveyStart(Summary.Id), cancellation: ct);
 }

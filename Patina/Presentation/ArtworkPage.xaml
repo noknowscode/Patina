@@ -3,7 +3,6 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:controls="using:Patina.Controls"
       xmlns:mvux="using:Uno.Extensions.Reactive.UI"
-      xmlns:uen="using:Uno.Extensions.Navigation.UI"
       xmlns:utu="using:Uno.Toolkit.UI"
       Background="{ThemeResource BackgroundBrush}">
 
@@ -110,7 +109,7 @@
                   <ListView ItemsSource="{Binding Data.OpenTreatments}"
                             ItemTemplate="{StaticResource TreatmentRowTemplate}"
                             SelectionMode="None" IsItemClickEnabled="True"
-                            uen:Navigation.Request="Treatment"
+                            utu:CommandExtensions.Command="{Binding Parent.OpenTreatment}"
                             AutomationProperties.AutomationId="OpenTreatmentList" />
                 </StackPanel>
 
@@ -157,7 +156,7 @@
                   <ListView ItemsSource="{Binding Data.CompletedTreatments}"
                             ItemTemplate="{StaticResource TreatmentRowTemplate}"
                             SelectionMode="None" IsItemClickEnabled="True"
-                            uen:Navigation.Request="Treatment" />
+                            utu:CommandExtensions.Command="{Binding Parent.OpenTreatment}" />
                 </StackPanel>
               </StackPanel>
             </Grid>

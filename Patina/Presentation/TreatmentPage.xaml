@@ -137,12 +137,12 @@
 
             <StackPanel Spacing="{StaticResource SpacingMd}" Visibility="{Binding IsEditable, Converter={StaticResource VisibleWhen}, FallbackValue=Collapsed}">
               <CalendarDatePicker x:Uid="Treatment_Date" Header="Scheduled for"
-                                  Date="{Binding ScheduledFor, Mode=TwoWay}"
+                                  Date="{Binding Fields.ScheduledFor, Mode=TwoWay}"
                                   DateFormat="{}{day.integer} {month.abbreviated} {year.full}"
                                   FirstDayOfWeek="Monday"
                                   HorizontalAlignment="Stretch"
                                   AutomationProperties.AutomationId="ScheduledFor" />
-              <TextBox x:Uid="Treatment_Assignee" Header="Assigned to" Text="{Binding Assignee, Mode=TwoWay}"
+              <TextBox x:Uid="Treatment_Assignee" Header="Assigned to" Text="{Binding Fields.Assignee, Mode=TwoWay}"
                        AutomationProperties.AutomationId="Assignee" />
               <!-- Label above, not Header: in a multi-line Material text box the floating header sits on the placeholder -->
               <StackPanel Spacing="{StaticResource SpacingXs}">

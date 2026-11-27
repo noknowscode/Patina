@@ -13,6 +13,10 @@ public partial class App : Application
     public App()
     {
         this.InitializeComponent();
+
+        // Confirmation dialogs (INavigator.ShowMessageDialogAsync) render as Uno's MessageDialog content dialog, Fluent-styled
+        // by default; the Material dialog style makes them match the app in Light and Dark.
+        Uno.WinRTFeatureConfiguration.MessageDialog.StyleOverride = "MaterialContentDialogStyle";
     }
 
     protected Window? MainWindow { get; private set; }
@@ -93,8 +97,10 @@ public partial class App : Application
                         ]),
                     new("Map", View: views.FindByViewModel<MapModel>()),
                     new("Artwork", View: views.FindByViewModel<ArtworkModel>()),
+                    new("ArtworkRecord", View: views.FindByViewModel<ArtworkModel>()),
                     new("Survey", View: views.FindByViewModel<SurveyModel>()),
                     new("Treatment", View: views.FindByViewModel<TreatmentModel>()),
+                    new("TreatmentRecord", View: views.FindByViewModel<TreatmentModel>()),
                 ]));
     }
 }
